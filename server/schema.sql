@@ -1,0 +1,33 @@
+-- PostgreSQL Database Schema for Avantra Consulting
+
+CREATE TABLE IF NOT EXISTS enquiries (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  company VARCHAR(255),
+  message TEXT NOT NULL,
+  status VARCHAR(50) DEFAULT 'pending',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS services (
+  id SERIAL PRIMARY KEY,
+  slug VARCHAR(100) UNIQUE NOT NULL,
+  number VARCHAR(10) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  short_description TEXT NOT NULL,
+  full_description TEXT NOT NULL,
+  capabilities JSONB NOT NULL DEFAULT '[]'::jsonb,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS insights (
+  id SERIAL PRIMARY KEY,
+  slug VARCHAR(150) UNIQUE NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  category VARCHAR(100) NOT NULL,
+  summary TEXT NOT NULL,
+  date VARCHAR(50) NOT NULL,
+  read_time VARCHAR(50) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

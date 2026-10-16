@@ -1,0 +1,22 @@
+{
+  "name": "avantra-consulting-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Avantra Executive Consulting Platform (Frontend & Backend)",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build && cp -r dist ../dist 2>/dev/null || xcopy /E /I /Y dist ..\\dist",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "start:backend": "cd backend && npm start"
+  },
+  "keywords": [
+    "avantra",
+    "consulting",
+    "frontend",
+    "backend"
+  ],
+  "author": "Avantra Consulting LLC",
+  "license": "ISC"
+}
+
