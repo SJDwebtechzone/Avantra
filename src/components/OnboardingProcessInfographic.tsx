@@ -31,7 +31,7 @@ export const OnboardingProcessInfographic: React.FC = () => {
       num: '05',
       title: 'Optimize',
       desc: 'Better templates, automation, faster turnaround.',
-      bgColor: 'bg-[#E06D53]', // Bright Coral Orange
+      bgColor: 'bg-[#198afa]', // Royal Blue
     },
   ];
 
@@ -40,12 +40,12 @@ export const OnboardingProcessInfographic: React.FC = () => {
       className="relative overflow-hidden rounded-3xl border border-[#E5DFD5] bg-[#F7F3EA] p-6 sm:p-10 md:p-12 shadow-sm"
       data-testid="onboarding-process-infographic"
     >
-      {/* Top right soft peach curve background shape */}
-      <div className="absolute top-0 right-0 w-64 h-64 sm:w-80 sm:h-80 bg-[#F3D7CD]/70 rounded-bl-full pointer-events-none -mr-8 -mt-8" />
+      {/* Top right soft ice blue curve background shape */}
+      <div className="absolute top-0 right-0 w-64 h-64 sm:w-80 sm:h-80 bg-[#CEE7EA]/70 rounded-bl-full pointer-events-none -mr-8 -mt-8" />
 
       {/* Header */}
       <div className="relative z-10">
-        <span className="text-[12px] uppercase tracking-[0.2em] font-semibold text-[#E06D53]">
+        <span className="text-[12px] uppercase tracking-[0.2em] font-semibold text-[#198afa]">
           WORKING WITH US
         </span>
         <h3 className="mt-2 text-2xl sm:text-3xl md:text-[38px] font-bold leading-tight tracking-tight text-[#1E3A5F]">
@@ -93,7 +93,7 @@ export const OnboardingProcessInfographic: React.FC = () => {
         {/* Center Pill Banner */}
         <div className="mt-10 flex justify-center">
           <div className="bg-white rounded-full border border-[#E2DCD0] px-7 py-3.5 shadow-sm inline-flex items-center gap-3">
-            <RotateCw size={22} className="text-[#E06D53] stroke-[2.5]" />
+            <RotateCw size={22} className="text-[#198afa] stroke-[2.5]" />
             <span className="font-bold text-[#1E3A5F] text-[15px] sm:text-[16px]">
               Improvement never stops after onboarding
             </span>

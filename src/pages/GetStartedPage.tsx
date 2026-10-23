@@ -1,4 +1,5 @@
 import React from 'react';
+import { SEO } from '../components/SEO';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { EnquireSection } from '../components/EnquireSection';
@@ -6,6 +7,11 @@ import { EnquireSection } from '../components/EnquireSection';
 export const GetStartedPage: React.FC = () => {
   return (
     <main className="site-shell bg-[hsl(var(--background))]">
+      <SEO 
+        title="Get Started | Consult With Avantra"
+        description="Tell us about your staffing or legal process outsourcing requirements. Receive a custom proposal and staffing roadmap within 24 hours."
+        canonical="https://avantraconsulting.com/get-started"
+      />
       <Navbar />
 
       {/* Hero Header */}

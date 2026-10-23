@@ -19,12 +19,12 @@ export const LpoInfographic: React.FC = () => {
 
   return (
     <div className="relative overflow-hidden rounded-3xl border border-[#E5DFD5] bg-[#F7F3EA] p-6 sm:p-10 md:p-14 shadow-sm" data-testid="lpo-infographic">
-      {/* Top right elegant solid curved shape matching original infographic */}
-      <div className="absolute top-0 right-0 w-64 h-64 sm:w-80 sm:h-80 bg-[#F3D7CD]/70 rounded-bl-full pointer-events-none -mr-8 -mt-8" />
+      {/* Top right elegant solid curved shape matching logo ice blue */}
+      <div className="absolute top-0 right-0 w-64 h-64 sm:w-80 sm:h-80 bg-[#CEE7EA]/70 rounded-bl-full pointer-events-none -mr-8 -mt-8" />
 
       {/* Header */}
       <div className="relative z-10">
-        <span className="text-[12px] uppercase tracking-[0.2em] font-semibold text-[#E06D53]">
+        <span className="text-[12px] uppercase tracking-[0.2em] font-semibold text-[#198afa]">
           LEGAL SUPPORT
         </span>
         <h3 className="mt-2 text-2xl sm:text-3xl md:text-[38px] font-bold leading-tight tracking-tight text-[#1E3A5F]">
@@ -36,7 +36,7 @@ export const LpoInfographic: React.FC = () => {
       <div className="relative z-10 mt-8 md:mt-12 grid gap-6 md:grid-cols-[1fr_auto_1fr] items-center">
         
         {/* Left Card - Avantra Handles */}
-        <div className="bg-white rounded-2xl border-t-[5px] border-t-[#E06D53] border-x border-b border-[#E2DCD3] p-6 md:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+        <div className="bg-white rounded-2xl border-t-[5px] border-t-[#198afa] border-x border-b border-[#E2DCD3] p-6 md:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
           <div className="flex items-center gap-3 pb-5 border-b border-[#F0ECE6]">
             <FileText size={26} className="text-[#1E3A5F]" />
             <h4 className="text-xl md:text-2xl font-bold text-[#1E3A5F]">
@@ -46,7 +46,7 @@ export const LpoInfographic: React.FC = () => {
           <ul className="divide-y divide-[#F0ECE6]">
             {avantraItems.map((item) => (
               <li key={item} className="py-4 flex items-start gap-3.5 text-[15px] md:text-[16px] leading-snug text-[#2C3E50] font-medium">
-                <span className="mt-2 h-2 w-2 rounded-full bg-[#E06D53] shrink-0" />
+                <span className="mt-2 h-2 w-2 rounded-full bg-[#198afa] shrink-0" />
                 <span>{item}</span>
               </li>
             ))}
@@ -55,7 +55,7 @@ export const LpoInfographic: React.FC = () => {
 
         {/* Center Connecting Arrow */}
         <div className="flex flex-col items-center justify-center py-4 md:py-0 px-2">
-          <div className="flex items-center justify-center text-[#E06D53]">
+          <div className="flex items-center justify-center text-[#198afa]">
             <ArrowRight size={38} className="stroke-[2.5]" />
           </div>
           <span className="mt-2 text-[13px] font-semibold text-[#5A6E85] text-center leading-tight max-w-[100px]">

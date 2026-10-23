@@ -21,7 +21,7 @@ export const InsightsSection: React.FC = () => {
           </div>
 
           <div>
-            <p className="max-w-[540px] text-[17px] leading-[1.6] text-[hsl(var(--foreground)/.66)]">
+            <p className="max-w-[540px] text-[17px] leading-[1.6] text-[hsl(var(--foreground)/.92)] font-normal">
               Avantra insights bring together practical perspectives on business strategy, technology, legal operations, bookkeeping, and company announcements.
             </p>
 

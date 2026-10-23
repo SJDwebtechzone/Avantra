@@ -4,6 +4,7 @@
   "private": true,
   "description": "Avantra Executive Consulting Platform (Frontend & Backend)",
   "scripts": {
+    "dev": "npm --prefix frontend run dev",
     "build": "cd frontend && npm install && npm run build && cp -r dist ../dist 2>/dev/null || xcopy /E /I /Y dist ..\\dist",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev",

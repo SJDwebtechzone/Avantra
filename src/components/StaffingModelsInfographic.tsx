@@ -6,7 +6,7 @@ interface RatingDotsProps {
 }
 
 const RatingDots: React.FC<RatingDotsProps> = ({ score, isHighlight = false }) => {
-  const activeColor = isHighlight ? 'bg-[#1C3857]' : 'bg-[#E06D53]';
+  const activeColor = isHighlight ? 'bg-[#1C3857]' : 'bg-[#198afa]';
   const inactiveColor = 'bg-[#E0D8CD]';
 
   return (
@@ -56,12 +56,12 @@ export const StaffingModelsInfographic: React.FC = () => {
       className="relative overflow-hidden rounded-3xl border border-[#E5DFD5] bg-[#F7F3EA] p-6 sm:p-10 md:p-14 shadow-sm"
       data-testid="staffing-models-infographic"
     >
-      {/* Top right elegant soft peach curve shape */}
-      <div className="absolute top-0 right-0 w-64 h-64 sm:w-80 sm:h-80 bg-[#F3D7CD]/70 rounded-bl-full pointer-events-none -mr-8 -mt-8" />
+      {/* Top right elegant soft ice blue curve shape */}
+      <div className="absolute top-0 right-0 w-64 h-64 sm:w-80 sm:h-80 bg-[#CEE7EA]/70 rounded-bl-full pointer-events-none -mr-8 -mt-8" />
 
       {/* Header */}
       <div className="relative z-10">
-        <span className="text-[12px] uppercase tracking-[0.2em] font-semibold text-[#E06D53]">
+        <span className="text-[12px] uppercase tracking-[0.2em] font-semibold text-[#198afa]">
           REMOTE STAFFING
         </span>
         <h3 className="mt-2 text-2xl sm:text-3xl md:text-[38px] font-bold leading-tight tracking-tight text-[#1E3A5F]">
@@ -126,15 +126,15 @@ export const StaffingModelsInfographic: React.FC = () => {
                 Rule of thumb
               </div>
 
-              <div className="py-5 px-4 bg-white font-bold text-[14px] md:text-[16px] text-[#E06D53]">
+              <div className="py-5 px-4 bg-white font-bold text-[14px] md:text-[16px] text-[#198afa]">
                 Need it once
               </div>
 
-              <div className="py-5 px-4 bg-white font-bold text-[14px] md:text-[16px] text-[#E06D53]">
+              <div className="py-5 px-4 bg-white font-bold text-[14px] md:text-[16px] text-[#198afa]">
                 Need it finished
               </div>
 
-              <div className="py-5 px-4 bg-[#EAF1F8] border-x border-b border-[#D5E3F0] rounded-b-2xl font-bold text-[14px] md:text-[16px] text-[#E06D53]">
+              <div className="py-5 px-4 bg-[#EAF1F8] border-x border-b border-[#D5E3F0] rounded-b-2xl font-bold text-[14px] md:text-[16px] text-[#198afa]">
                 Need it every day
               </div>
             </div>

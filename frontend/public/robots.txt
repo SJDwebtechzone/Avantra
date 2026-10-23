@@ -1,0 +1,27 @@
+# Avantra Consulting - robots.txt
+User-agent: *
+Allow: /
+Allow: /services
+Allow: /services/*
+Allow: /pricing
+Allow: /our-pricing
+Allow: /story
+Allow: /our-story
+Allow: /why-us
+Allow: /approach
+Allow: /our-approach
+Allow: /articles
+Allow: /articles/*
+Allow: /case-studies
+Allow: /news
+Allow: /updates
+Allow: /get-started
+
+# Disallow private administration, authentication & API routes
+Disallow: /login
+Disallow: /dashboard
+Disallow: /portal
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://avantraconsulting.com/sitemap.xml

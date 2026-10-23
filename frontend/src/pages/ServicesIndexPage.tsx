@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
+import { SEO } from '../components/SEO';
 import { Navbar } from '../components/Navbar';
 import { EnquireSection } from '../components/EnquireSection';
 import { Footer } from '../components/Footer';
@@ -10,6 +11,11 @@ export const ServicesIndexPage: React.FC = () => {
 
   return (
     <main className="site-shell">
+      <SEO 
+        title="Services | Legal, Remote Staffing & Business Operations"
+        description="Explore Avantra Consulting's suite of services: Legal Process Outsourcing, Full-Time Dedicated Remote Teams, Bookkeeping, IT-Enabled Services, and Strategic Consulting."
+        canonical="https://avantraconsulting.com/services"
+      />
       <Navbar light={true} />
       
       <section className="service-index-hero dark-panel">
@@ -22,7 +28,7 @@ export const ServicesIndexPage: React.FC = () => {
               for the work.
             </h1>
           </div>
-          <p className="max-w-[470px] text-[17px] leading-[1.65] text-[hsl(var(--primary-foreground)/.68)]">
+          <p className="max-w-[470px] text-[17px] leading-[1.65] text-[hsl(var(--primary-foreground)/.88)]">
             Explore Avantra services by market. Every engagement is built around clear ownership, practical expertise and work that fits your operating rhythm.
           </p>
         </div>

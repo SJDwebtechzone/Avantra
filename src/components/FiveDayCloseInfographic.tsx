@@ -40,12 +40,12 @@ export const FiveDayCloseInfographic: React.FC = () => {
       className="relative overflow-hidden rounded-3xl border border-[#E5DFD5] bg-[#F7F3EA] p-6 sm:p-10 md:p-12 shadow-sm"
       data-testid="five-day-close-infographic"
     >
-      {/* Top right soft peach curve background shape */}
-      <div className="absolute top-0 right-0 w-64 h-64 sm:w-80 sm:h-80 bg-[#F3D7CD]/70 rounded-bl-full pointer-events-none -mr-8 -mt-8" />
+      {/* Top right soft ice blue curve background shape */}
+      <div className="absolute top-0 right-0 w-64 h-64 sm:w-80 sm:h-80 bg-[#CEE7EA]/70 rounded-bl-full pointer-events-none -mr-8 -mt-8" />
 
       {/* Header */}
       <div className="relative z-10">
-        <span className="text-[12px] uppercase tracking-[0.2em] font-semibold text-[#E06D53]">
+        <span className="text-[12px] uppercase tracking-[0.2em] font-semibold text-[#198afa]">
           FINANCE &amp; BOOKKEEPING
         </span>
         <h3 className="mt-2 text-2xl sm:text-3xl md:text-[38px] font-bold leading-tight tracking-tight text-[#1E3A5F]">
@@ -64,7 +64,7 @@ export const FiveDayCloseInfographic: React.FC = () => {
             <div key={d.num} className="flex flex-col items-center text-center group">
               {/* Double Ring Circle Badge */}
               {d.isHighlight ? (
-                <div className="w-[88px] h-[88px] rounded-full border-4 border-[#F7F3EA] outline outline-2 outline-[#E06D53] bg-[#E06D53] text-white flex flex-col items-center justify-center shadow-md shrink-0">
+                <div className="w-[88px] h-[88px] rounded-full border-4 border-[#F7F3EA] outline outline-2 outline-[#198afa] bg-[#198afa] text-white flex flex-col items-center justify-center shadow-md shrink-0">
                   <span className="text-[10px] font-mono tracking-widest uppercase opacity-90 leading-none">
                     DAY
                   </span>
@@ -104,7 +104,7 @@ export const FiveDayCloseInfographic: React.FC = () => {
             <Clock size={20} className="text-white" />
           </div>
           <p className="text-[14px] sm:text-[15px] leading-snug text-white/90">
-            <strong className="text-[#E06D53] font-bold">All month:</strong>{' '}
+            <strong className="text-[#38bdf8] font-bold">All month:</strong>{' '}
             record transactions weekly, attach receipts as you go, and keep a running list of questions.
           </p>
         </div>

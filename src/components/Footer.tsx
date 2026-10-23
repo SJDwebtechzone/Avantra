@@ -11,7 +11,7 @@ export const Footer: React.FC = () => {
           <div className="grid gap-12 md:grid-cols-[1.3fr_.7fr_.9fr]">
             <div>
               <Logo light={true} />
-              <p className="mt-6 max-w-[280px] text-[13px] leading-[1.65] text-[hsl(var(--primary-foreground)/.52)]">
+              <p className="mt-6 max-w-[280px] text-[13px] leading-[1.65] text-[hsl(var(--primary-foreground)/.85)]">
                 Legal process outsourcing and business consulting, thoughtfully delivered from Bangalore to the teams that need it.
               </p>
             </div>
@@ -29,7 +29,7 @@ export const Footer: React.FC = () => {
 
             <div>
               <div className="eyebrow">Find us</div>
-              <address className="mt-5 flex items-start gap-3 text-[13px] not-italic leading-[1.55] text-[hsl(var(--primary-foreground)/.62)]">
+              <address className="mt-5 flex items-start gap-3 text-[13px] not-italic leading-[1.55] text-[hsl(var(--primary-foreground)/.88)]">
                 <MapPin size={15} className="mt-0.5 shrink-0 text-[hsl(var(--accent))]" />
                 <span>
                   No 17/1, 4th Main Road,<br />
@@ -40,8 +40,18 @@ export const Footer: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-16 flex flex-col gap-3 border-t border-[hsl(var(--primary-foreground)/.15)] pt-5 text-[10px] uppercase tracking-[.12em] text-[hsl(var(--primary-foreground)/.38)] md:flex-row md:items-center md:justify-between">
-            <span>© {new Date().getFullYear()} Avantra Consulting</span>
+          <div className="mt-16 flex flex-col gap-3 border-t border-[hsl(var(--primary-foreground)/.15)] pt-5 text-[10px] uppercase tracking-[.12em] text-[hsl(var(--primary-foreground)/.72)] md:flex-row md:items-center md:justify-between">
+            <span>
+              © {new Date().getFullYear()}{' '}
+              <a
+                href="https://devspectra.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-[hsl(var(--accent))] transition-colors cursor-pointer underline decoration-transparent hover:decoration-current underline-offset-4"
+              >
+                DevSpectra
+              </a>
+            </span>
             <span>Expertise you can count on, results you can trust.</span>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { SEO } from '../components/SEO';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { ArrowUpRight, ArrowRight } from 'lucide-react';
@@ -29,6 +30,11 @@ export const WhyUsPage: React.FC = () => {
 
   return (
     <main className="site-shell bg-[hsl(var(--background))] text-[hsl(var(--foreground))] min-h-screen flex flex-col justify-between">
+      <SEO 
+        title="Why Avantra | Global Capacity, Uncompromising Standards"
+        description="Discover why leading organizations partner with Avantra Consulting for remote staffing and legal process outsourcing: single-owner accountability, agile scaling, and cross-border expertise."
+        canonical="https://avantraconsulting.com/why-us"
+      />
       <Navbar />
 
       <div className="pt-[70px]">
@@ -37,7 +43,7 @@ export const WhyUsPage: React.FC = () => {
           <div className="container-wide">
             
             {/* Breadcrumb Navigation */}
-            <div className="flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.14em] text-[hsl(var(--foreground)/.52)] mb-3">
+            <div className="flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.14em] text-[hsl(var(--foreground)/.75)] mb-3">
               <a href="/" className="hover:text-[hsl(var(--accent))] transition-colors">Home</a>
               <span>/</span>
               <span className="mono text-[hsl(var(--accent))] font-semibold">Why Us</span>
@@ -55,7 +61,7 @@ export const WhyUsPage: React.FC = () => {
                 <span className="mono text-[10px] uppercase tracking-[.14em] text-[hsl(var(--accent))] block mb-2 font-semibold">
                   OUR PHILOSOPHY
                 </span>
-                <p className="text-[14.5px] md:text-[15.5px] leading-[1.65] text-[hsl(var(--foreground)/.8)]">
+                <p className="text-[14.5px] md:text-[15.5px] leading-[1.65] text-[hsl(var(--foreground)/.92)] font-normal">
                   Based in Bangalore and trusted by law firms and businesses across North America and India, Avantra is built for the day-to-day realities behind ambitious work. We are not another vendor added to the pile — we are the partner that makes the rest of the pile easier to manage.
                 </p>
               </div>
@@ -90,7 +96,7 @@ export const WhyUsPage: React.FC = () => {
                     <tr key={item.number} className="hover:bg-[hsl(var(--foreground)/.03)] transition-colors">
                       <td className="py-5 px-6 serif text-xl font-normal text-[hsl(var(--accent))]">{item.number}</td>
                       <td className="py-5 px-6 font-medium text-[15px] text-[hsl(var(--foreground))]">{item.pillar}</td>
-                      <td className="py-5 px-6 text-[14.5px] leading-[1.6] text-[hsl(var(--foreground)/.75)]">{item.description}</td>
+                      <td className="py-5 px-6 text-[14.5px] leading-[1.6] text-[hsl(var(--foreground)/.92)] font-normal">{item.description}</td>
                     </tr>
                   ))}
                 </tbody>

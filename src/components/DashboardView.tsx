@@ -1,20 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  Building2, 
-  Users, 
-  ShieldCheck, 
-  TrendingUp, 
   FileText, 
-  Download, 
+  Sparkles, 
+  Briefcase, 
+  Newspaper, 
+  DollarSign, 
+  Plus, 
+  Edit3, 
+  Trash2, 
+  ExternalLink, 
   Search, 
-  Bell, 
+  RefreshCw, 
   LogOut, 
-  CheckCircle2, 
-  Clock, 
-  Filter, 
-  Sparkles,
-  Shield,
-  Briefcase
+  Check, 
+  X, 
+  AlertCircle,
+  ArrowUpRight,
+  ShieldCheck
 } from 'lucide-react';
 
 interface UserData {
@@ -31,513 +33,1590 @@ interface DashboardViewProps {
   onLogout: () => void;
 }
 
-export const DashboardView: React.FC<DashboardViewProps> = ({ user, onLogout }) => {
-  const [activeTab, setActiveTab] = useState<'engagements' | 'allocation' | 'talent' | 'audit'>('engagements');
+type TabKey = 'pricing' | 'articles' | 'updates' | 'case_studies' | 'news';
+
+// Interfaces for the 5 dynamic sections
+export interface PricingPlan {
+  id: string;
+  dbId?: number;
+  number: string;
+  title: string;
+  subtitle?: string;
+  priceStructure: string;
+  priceNote?: string;
+  description: string;
+  roles: string[];
+  whatsIncluded?: string[];
+  bestFit: string[];
+}
+
+export interface ArticleItem {
+  id: string;
+  dbId?: number;
+  number: string;
+  slug: string;
+  title: string;
+  category: string;
+  readTime: string;
+  excerpt: string;
+  content?: string;
+}
+
+export interface UpdateItem {
+  id: string;
+  dbId?: number;
+  title: string;
+  date: string;
+  category: string;
+  content: string;
+  linkText?: string;
+  linkHref?: string;
+}
+
+export interface CaseStudyItem {
+  id: string;
+  dbId?: number;
+  slug: string;
+  title: string;
+  client: string;
+  category: string;
+  challenge: string;
+  solution: string;
+  outcome: string;
+  metrics?: string;
+  date: string;
+}
+
+export interface NewsItem {
+  id: string;
+  dbId?: number;
+  title: string;
+  date: string;
+  category: string;
+  content: string;
+}
+
+export const DashboardView: React.FC<DashboardViewProps> = ({ user: _user, onLogout }) => {
+  const [activeTab, setActiveTab] = useState<TabKey>('pricing');
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [loading, setLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Dynamic state for each of the 5 sections
+  const [pricingList, setPricingList] = useState<PricingPlan[]>([]);
+  const [articlesList, setArticlesList] = useState<ArticleItem[]>([]);
+  const [updatesList, setUpdatesList] = useState<UpdateItem[]>([]);
+  const [caseStudiesList, setCaseStudiesList] = useState<CaseStudyItem[]>([]);
+  const [newsList, setNewsList] = useState<NewsItem[]>([]);
+
+  // Modal State
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  // Form State
+  const [pricingForm, setPricingForm] = useState({
+    number: '',
+    title: '',
+    subtitle: '',
+    priceStructure: '',
+    priceNote: '',
+    description: '',
+    roles: '',
+    whatsIncluded: '',
+    bestFit: ''
+  });
+
+  const [articleForm, setArticleForm] = useState({
+    number: '',
+    slug: '',
+    title: '',
+    category: '',
+    readTime: '',
+    excerpt: '',
+    content: ''
+  });
+
+  const [updateForm, setUpdateForm] = useState({
+    title: '',
+    date: '',
+    category: '',
+    content: '',
+    linkText: '',
+    linkHref: ''
+  });
+
+  const [caseStudyForm, setCaseStudyForm] = useState({
+    slug: '',
+    title: '',
+    client: '',
+    category: '',
+    challenge: '',
+    solution: '',
+    outcome: '',
+    metrics: '',
+    date: ''
+  });
+
+  const [newsForm, setNewsForm] = useState({
+    title: '',
+    date: '',
+    category: '',
+    content: ''
+  });
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const engagements = [
-    {
-      id: 'ENG-2026-089',
-      title: 'US-India Cross-Border Tax & Legal Alignment',
-      category: 'Legal & Advisory',
-      lead: 'David Chen, Senior Counsel',
-      status: 'Active',
-      progress: 78,
-      budget: '$340,000',
-      lastUpdate: '2 hours ago'
-    },
-    {
-      id: 'ENG-2026-074',
-      title: 'Fintech Platform Regulatory Compliance Audit',
-      category: 'Financial Solutions',
-      lead: 'Anand Siddapa, Managing Partner',
-      status: 'In Review',
-      progress: 92,
-      budget: '$520,000',
-      lastUpdate: 'Yesterday'
-    },
-    {
-      id: 'ENG-2026-061',
-      title: 'Enterprise Paralegal Staffing Roster (Q3)',
-      category: 'Staffing & Talent',
-      lead: 'Priya Sharma, Talent Director',
-      status: 'Active',
-      progress: 64,
-      budget: '$210,000',
-      lastUpdate: '3 days ago'
-    },
-    {
-      id: 'ENG-2026-042',
-      title: 'AI Governance & Risk Assessment Framework',
-      category: 'Technology Solutions',
-      lead: 'Marcus Vance, Tech Principal',
-      status: 'Completed',
-      progress: 100,
-      budget: '$450,000',
-      lastUpdate: '1 week ago'
+  // Fetch all 5 sections from backend
+  const fetchAllData = async () => {
+    setLoading(true);
+    try {
+      const [pRes, aRes, uRes, cRes, nRes] = await Promise.all([
+        fetch('/api/pricing'),
+        fetch('/api/articles'),
+        fetch('/api/updates'),
+        fetch('/api/case-studies'),
+        fetch('/api/news')
+      ]);
+
+      if (pRes.ok) {
+        const pJson = await pRes.json();
+        if (pJson.success) setPricingList(pJson.data);
+      }
+      if (aRes.ok) {
+        const aJson = await aRes.json();
+        if (aJson.success) setArticlesList(aJson.data);
+      }
+      if (uRes.ok) {
+        const uJson = await uRes.json();
+        if (uJson.success) setUpdatesList(uJson.data);
+      }
+      if (cRes.ok) {
+        const cJson = await cRes.json();
+        if (cJson.success) setCaseStudiesList(cJson.data);
+      }
+      if (nRes.ok) {
+        const nJson = await nRes.json();
+        if (nJson.success) setNewsList(nJson.data);
+      }
+    } catch (err) {
+      console.error('Error fetching dashboard dynamic data:', err);
+      showToast('Error syncing with PostgreSQL');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const specialists = [
-    { name: 'Aarav Mehta', role: 'Senior Regulatory Paralegal', location: 'Bangalore, IN', status: 'Assigned', experience: '8 Yrs' },
-    { name: 'Sarah Jenkins', role: 'Corporate Tax Structuring Specialist', location: 'New York, US', status: 'Deployed', experience: '12 Yrs' },
-    { name: 'Vikram Kulkarni', role: 'Enterprise Cloud Architect', location: 'Bengaluru, IN', status: 'Deployed', experience: '10 Yrs' },
-    { name: 'Elena Rostova', role: 'Cross-Border Compliance Auditor', location: 'Chicago, US', status: 'Assigned', experience: '7 Yrs' }
-  ];
+  useEffect(() => {
+    fetchAllData();
+  }, []);
 
-  const auditLogs = [
-    { time: '14:22 UTC', event: 'Q3 Financial Advisory Summary downloaded', user: user.name, ip: '192.168.1.104' },
-    { time: '11:05 UTC', event: 'SOC2 Type II Compliance Certificate Verified', user: 'System Automated', ip: 'Internal Gateway' },
-    { time: '09:40 UTC', event: 'Paralegal Roster #42 Expanded (+4 Team Members)', user: 'Priya Sharma', ip: '10.0.4.12' },
-    { time: 'Yesterday', event: 'Encrypted Board Briefing Signed via SSL Gateway', user: user.name, ip: '192.168.1.104' }
-  ];
+  // Open Create Modal
+  const handleOpenCreate = () => {
+    setModalMode('create');
+    setEditingId(null);
+    if (activeTab === 'pricing') {
+      setPricingForm({
+        number: `0${pricingList.length + 1}`,
+        title: '',
+        subtitle: '',
+        priceStructure: '',
+        priceNote: '',
+        description: '',
+        roles: '',
+        whatsIncluded: '',
+        bestFit: ''
+      });
+    } else if (activeTab === 'articles') {
+      setArticleForm({
+        number: `${articlesList.length + 1}`,
+        slug: '',
+        title: '',
+        category: 'Legal Support',
+        readTime: '5 min',
+        excerpt: '',
+        content: ''
+      });
+    } else if (activeTab === 'updates') {
+      setUpdateForm({
+        title: '',
+        date: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+        category: 'Service Update',
+        content: '',
+        linkText: '',
+        linkHref: ''
+      });
+    } else if (activeTab === 'case_studies') {
+      setCaseStudyForm({
+        slug: '',
+        title: '',
+        client: '',
+        category: 'Finance & Legal',
+        challenge: '',
+        solution: '',
+        outcome: '',
+        metrics: '',
+        date: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+      });
+    } else if (activeTab === 'news') {
+      setNewsForm({
+        title: '',
+        date: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+        category: 'Company News',
+        content: ''
+      });
+    }
+    setModalOpen(true);
+  };
 
-  const filteredEngagements = engagements.filter(e => {
-    const matchesSearch = e.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          e.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          e.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'all' || e.status.toLowerCase().replace(/\s+/g, '') === filterStatus;
-    return matchesSearch && matchesStatus;
-  });
+  // Open Edit Modal
+  const handleOpenEdit = (item: any) => {
+    setModalMode('edit');
+    setEditingId(item.id);
+    if (activeTab === 'pricing') {
+      setPricingForm({
+        number: item.number || '',
+        title: item.title || '',
+        subtitle: item.subtitle || '',
+        priceStructure: item.priceStructure || '',
+        priceNote: item.priceNote || '',
+        description: item.description || '',
+        roles: (item.roles || []).join('\n'),
+        whatsIncluded: (item.whatsIncluded || []).join('\n'),
+        bestFit: (item.bestFit || []).join('\n')
+      });
+    } else if (activeTab === 'articles') {
+      setArticleForm({
+        number: item.number || '',
+        slug: item.slug || '',
+        title: item.title || '',
+        category: item.category || '',
+        readTime: item.readTime || '',
+        excerpt: item.excerpt || '',
+        content: item.content || ''
+      });
+    } else if (activeTab === 'updates') {
+      setUpdateForm({
+        title: item.title || '',
+        date: item.date || '',
+        category: item.category || '',
+        content: item.content || '',
+        linkText: item.linkText || '',
+        linkHref: item.linkHref || ''
+      });
+    } else if (activeTab === 'case_studies') {
+      setCaseStudyForm({
+        slug: item.slug || '',
+        title: item.title || '',
+        client: item.client || '',
+        category: item.category || '',
+        challenge: item.challenge || '',
+        solution: item.solution || '',
+        outcome: item.outcome || '',
+        metrics: item.metrics || '',
+        date: item.date || ''
+      });
+    } else if (activeTab === 'news') {
+      setNewsForm({
+        title: item.title || '',
+        date: item.date || '',
+        category: item.category || '',
+        content: item.content || ''
+      });
+    }
+    setModalOpen(true);
+  };
+
+  // Save (Create or Update)
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      let endpoint = '';
+      let method = modalMode === 'create' ? 'POST' : 'PUT';
+      let payload: any = {};
+
+      if (activeTab === 'pricing') {
+        endpoint = modalMode === 'create' ? '/api/pricing' : `/api/pricing/${editingId}`;
+        payload = {
+          number: pricingForm.number,
+          title: pricingForm.title,
+          subtitle: pricingForm.subtitle,
+          priceStructure: pricingForm.priceStructure,
+          priceNote: pricingForm.priceNote,
+          description: pricingForm.description,
+          roles: pricingForm.roles.split('\n').map(s => s.trim()).filter(Boolean),
+          whatsIncluded: pricingForm.whatsIncluded.split('\n').map(s => s.trim()).filter(Boolean),
+          bestFit: pricingForm.bestFit.split('\n').map(s => s.trim()).filter(Boolean)
+        };
+      } else if (activeTab === 'articles') {
+        endpoint = modalMode === 'create' ? '/api/articles' : `/api/articles/${editingId}`;
+        payload = {
+          number: articleForm.number,
+          slug: articleForm.slug || articleForm.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+          title: articleForm.title,
+          category: articleForm.category,
+          readTime: articleForm.readTime,
+          excerpt: articleForm.excerpt,
+          content: articleForm.content
+        };
+      } else if (activeTab === 'updates') {
+        endpoint = modalMode === 'create' ? '/api/updates' : `/api/updates/${editingId}`;
+        payload = {
+          title: updateForm.title,
+          date: updateForm.date,
+          category: updateForm.category,
+          content: updateForm.content,
+          linkText: updateForm.linkText || null,
+          linkHref: updateForm.linkHref || null
+        };
+      } else if (activeTab === 'case_studies') {
+        endpoint = modalMode === 'create' ? '/api/case-studies' : `/api/case-studies/${editingId}`;
+        payload = {
+          slug: caseStudyForm.slug || caseStudyForm.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+          title: caseStudyForm.title,
+          client: caseStudyForm.client,
+          category: caseStudyForm.category,
+          challenge: caseStudyForm.challenge,
+          solution: caseStudyForm.solution,
+          outcome: caseStudyForm.outcome,
+          metrics: caseStudyForm.metrics,
+          date: caseStudyForm.date
+        };
+      } else if (activeTab === 'news') {
+        endpoint = modalMode === 'create' ? '/api/news' : `/api/news/${editingId}`;
+        payload = {
+          title: newsForm.title,
+          date: newsForm.date,
+          category: newsForm.category,
+          content: newsForm.content
+        };
+      }
+
+      const res = await fetch(endpoint, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || 'Request failed');
+      }
+
+      showToast(`Record ${modalMode === 'create' ? 'created' : 'updated'} successfully in PostgreSQL.`);
+      setModalOpen(false);
+      fetchAllData();
+    } catch (err: any) {
+      console.error('Error saving item:', err);
+      showToast(err.message || 'Error saving record');
+    }
+  };
+
+  // Delete Record
+  const handleDelete = async (id: string) => {
+    try {
+      let endpoint = '';
+      if (activeTab === 'pricing') endpoint = `/api/pricing/${id}`;
+      else if (activeTab === 'articles') endpoint = `/api/articles/${id}`;
+      else if (activeTab === 'updates') endpoint = `/api/updates/${id}`;
+      else if (activeTab === 'case_studies') endpoint = `/api/case-studies/${id}`;
+      else if (activeTab === 'news') endpoint = `/api/news/${id}`;
+
+      const res = await fetch(endpoint, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete item');
+
+      showToast('Record deleted from PostgreSQL.');
+      setDeleteConfirmId(null);
+      fetchAllData();
+    } catch (err: any) {
+      console.error('Error deleting item:', err);
+      showToast(err.message || 'Error deleting record');
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
+    <div className="min-h-screen bg-[#F8FAF9] text-[#1E293B] flex flex-col font-sans">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-md bg-gray-900 px-5 py-3 text-sm text-white shadow-2xl transition-all animate-in fade-in slide-in-from-bottom-5">
-          <CheckCircle2 className="text-emerald-400" size={18} />
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-950 text-white px-4 py-3 shadow-xl text-sm animate-fade-in font-medium">
+          <Check size={18} className="text-emerald-400 shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-40 border-b border-[hsl(var(--foreground)/.12)] bg-[hsl(var(--background)/.95)] backdrop-blur-md">
-        <div className="container-wide flex h-16 items-center justify-between">
-          <div className="flex items-center gap-4">
-            <a href="/" className="flex items-center gap-3">
-              <span className="relative flex h-8 w-8 items-center justify-center border border-current">
-                <span className="absolute h-3 w-3 rotate-45 bg-[hsl(var(--accent))]" />
-                <span className="relative font-serif text-lg leading-none">A</span>
-              </span>
-              <span className="text-[13px] font-bold tracking-[0.16em]">AVANTRA</span>
+      {/* Admin CMS Top Navigation */}
+      <header className="sticky top-0 z-30 border-b border-[#E2E8F0] bg-white/95 backdrop-blur-md px-4 sm:px-6 md:px-8 py-3.5 shadow-sm">
+        <div className="w-full flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <a href="/" className="inline-flex items-center transition-opacity hover:opacity-90" aria-label="Avantra Consulting LLP">
+              <img
+                src="/avantra-logo.svg"
+                alt="Avantra Consulting LLP"
+                className="h-8 sm:h-9 w-auto object-contain max-w-[200px] sm:max-w-[260px]"
+              />
             </a>
-            <span className="h-4 w-px bg-[hsl(var(--foreground)/.2)]" />
-            <span className="mono text-[11px] uppercase tracking-wider text-[hsl(var(--accent))]">
-              {user.type === 'client' ? 'Client Executive Portal' : 'Advisor Command Center'}
-            </span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="relative hidden md:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--foreground)/.4)]" size={15} />
-              <input 
-                type="text"
-                placeholder="Search engagements, reports..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="h-9 w-64 rounded-md border border-[hsl(var(--foreground)/.15)] bg-[hsl(var(--card))] pl-9 pr-4 text-xs placeholder:text-[hsl(var(--foreground)/.4)] focus:border-[hsl(var(--accent))] focus:outline-none"
-              />
-            </div>
-
-            <button 
-              onClick={() => showToast('No unread critical alerts.')}
-              className="relative flex h-9 w-9 items-center justify-center rounded-md border border-[hsl(var(--foreground)/.15)] bg-[hsl(var(--card))] hover:bg-[hsl(var(--muted))]"
+          <div className="flex items-center gap-3">
+            <a
+              href="/"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg px-3 py-1.5 font-medium transition-colors bg-white hover:bg-slate-50"
             >
-              <Bell size={16} />
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[hsl(var(--accent))]" />
-            </button>
+              <span>View Live Site</span>
+              <ExternalLink size={12} />
+            </a>
 
-            <div className="flex items-center gap-3 border-l border-[hsl(var(--foreground)/.15)] pl-4">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[hsl(var(--accent)/.15)] font-serif text-sm font-bold text-[hsl(var(--accent))] border border-[hsl(var(--accent)/.3)]">
-                {user.avatar}
-              </div>
-              <div className="hidden flex-col text-left lg:flex">
-                <span className="text-xs font-semibold leading-tight">{user.name}</span>
-                <span className="text-[10px] text-[hsl(var(--foreground)/.6)]">{user.role}</span>
-              </div>
-            </div>
+            <div className="h-4 w-px bg-slate-200" />
 
-            <button 
+            <button
               onClick={onLogout}
-              className="flex items-center gap-2 rounded-md border border-[hsl(var(--foreground)/.18)] px-3 py-1.5 text-xs font-medium hover:border-red-400 hover:bg-red-500/10 hover:text-red-500 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg px-3.5 py-1.5 transition-colors shadow-sm"
               title="Sign Out"
             >
               <LogOut size={14} />
-              <span className="hidden sm:inline">Sign Out</span>
+              <span>Sign Out</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Main Dashboard Layout */}
-      <main className="container-wide py-8">
-        {/* Header Welcome Banner */}
-        <div className="mb-8 flex flex-col justify-between gap-4 rounded-xl border border-[hsl(var(--foreground)/.14)] bg-gradient-to-r from-[hsl(var(--card))] via-[hsl(var(--card)/.9)] to-[hsl(var(--accent)/.08)] p-6 md:flex-row md:items-center">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[hsl(var(--accent))]">
-              <Sparkles size={14} />
-              <span>Avantra Strategic Intelligence</span>
+      {/* Main CMS Layout */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+        
+        {/* Banner with 5 Sections Navigation */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight">
+                Dynamic Content Management
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                Manage the 5 live dynamic sections across Avantra Consulting powered by PostgreSQL.
+              </p>
             </div>
-            <h1 className="mt-1 text-2xl font-light tracking-tight md:text-3xl">
-              Welcome back, <span className="font-semibold text-[hsl(var(--foreground))]">{user.name}</span>
-            </h1>
-            <p className="mt-1 text-xs text-[hsl(var(--foreground)/.65)]">
-              {user.company} &bull; Active Advisory Node: <span className="font-mono text-[hsl(var(--foreground))]">US-IN-GATEWAY-09</span>
-            </p>
+
+            <div className="flex items-center gap-2.5">
+              <button
+                onClick={fetchAllData}
+                disabled={loading}
+                className="inline-flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg px-3 py-2 font-medium bg-white hover:bg-slate-50 transition-colors"
+                title="Refresh from PostgreSQL"
+              >
+                <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
+                <span>Refresh</span>
+              </button>
+
+              <button
+                onClick={handleOpenCreate}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#02060c] hover:bg-slate-800 px-4 py-2 rounded-lg transition-colors shadow-sm"
+              >
+                <Plus size={15} />
+                <span>
+                  Add {activeTab === 'pricing' ? 'Pricing Plan' : activeTab === 'articles' ? 'Article' : activeTab === 'updates' ? 'Update' : activeTab === 'case_studies' ? 'Case Study' : 'News'}
+                </span>
+              </button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => showToast('Generated Comprehensive Executive Summary PDF')}
-              className="primary-button text-xs py-2.5 px-4 flex items-center gap-2"
+          {/* 5 Dynamic Sections Tabs */}
+          <div className="flex flex-wrap items-center gap-2 pt-4">
+            <button
+              onClick={() => { setActiveTab('pricing'); setSearchTerm(''); }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                activeTab === 'pricing'
+                  ? 'bg-[#02060c] text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+              }`}
             >
-              <Download size={14} /> Export Executive Summary
+              <DollarSign size={15} />
+              <span>1. Pricing Plans</span>
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
+                activeTab === 'pricing' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+              }`}>
+                {pricingList.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => { setActiveTab('articles'); setSearchTerm(''); }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                activeTab === 'articles'
+                  ? 'bg-[#02060c] text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+              }`}
+            >
+              <FileText size={15} />
+              <span>2. Articles</span>
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
+                activeTab === 'articles' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+              }`}>
+                {articlesList.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => { setActiveTab('updates'); setSearchTerm(''); }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                activeTab === 'updates'
+                  ? 'bg-[#02060c] text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+              }`}
+            >
+              <Sparkles size={15} />
+              <span>3. Updates</span>
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
+                activeTab === 'updates' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+              }`}>
+                {updatesList.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => { setActiveTab('case_studies'); setSearchTerm(''); }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                activeTab === 'case_studies'
+                  ? 'bg-[#02060c] text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+              }`}
+            >
+              <Briefcase size={15} />
+              <span>4. Case Studies</span>
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
+                activeTab === 'case_studies' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+              }`}>
+                {caseStudiesList.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => { setActiveTab('news'); setSearchTerm(''); }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                activeTab === 'news'
+                  ? 'bg-[#02060c] text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+              }`}
+            >
+              <Newspaper size={15} />
+              <span>5. News</span>
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
+                activeTab === 'news' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+              }`}>
+                {newsList.length}
+              </span>
             </button>
           </div>
         </div>
 
-        {/* Executive KPI Grid */}
-        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-[hsl(var(--foreground)/.14)] bg-[hsl(var(--card))] p-5 transition-shadow hover:shadow-md">
-            <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wider text-[hsl(var(--foreground)/.6)]">Active Engagements</span>
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[hsl(var(--accent)/.12)] text-[hsl(var(--accent))]">
-                <Briefcase size={16} />
-              </span>
-            </div>
-            <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-3xl font-light">14</span>
-              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
-                +18.4% YoY
-              </span>
-            </div>
-            <p className="mt-2 text-[11px] text-[hsl(var(--foreground)/.5)]">4 projects awaiting Q3 sign-off</p>
+        {/* Search Bar for Current Section */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="relative flex-1 max-w-md">
+            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder={`Search ${activeTab.replace('_', ' ')}...`}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#02060c]/20 focus:border-[#02060c] text-slate-800"
+            />
           </div>
-
-          <div className="rounded-xl border border-[hsl(var(--foreground)/.14)] bg-[hsl(var(--card))] p-5 transition-shadow hover:shadow-md">
-            <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wider text-[hsl(var(--foreground)/.6)]">Deployed Specialists</span>
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[hsl(var(--accent)/.12)] text-[hsl(var(--accent))]">
-                <Users size={16} />
-              </span>
-            </div>
-            <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-3xl font-light">128</span>
-              <span className="text-xs font-medium text-[hsl(var(--foreground)/.7)]">Legal & Tech Roster</span>
-            </div>
-            <p className="mt-2 text-[11px] text-[hsl(var(--foreground)/.5)]">US & India Operations Active</p>
-          </div>
-
-          <div className="rounded-xl border border-[hsl(var(--foreground)/.14)] bg-[hsl(var(--card))] p-5 transition-shadow hover:shadow-md">
-            <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wider text-[hsl(var(--foreground)/.6)]">Portfolio Valuation</span>
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[hsl(var(--accent)/.12)] text-[hsl(var(--accent))]">
-                <TrendingUp size={16} />
-              </span>
-            </div>
-            <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-3xl font-light">$4.82M</span>
-              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">USD</span>
-            </div>
-            <p className="mt-2 text-[11px] text-[hsl(var(--foreground)/.5)]">Quarterly Audit Complete</p>
-          </div>
-
-          <div className="rounded-xl border border-[hsl(var(--foreground)/.14)] bg-[hsl(var(--card))] p-5 transition-shadow hover:shadow-md">
-            <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wider text-[hsl(var(--foreground)/.6)]">Compliance Score</span>
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[hsl(var(--accent)/.12)] text-[hsl(var(--accent))]">
-                <ShieldCheck size={16} />
-              </span>
-            </div>
-            <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-3xl font-light">99.4%</span>
-              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Verified</span>
-            </div>
-            <p className="mt-2 text-[11px] text-[hsl(var(--foreground)/.5)]">SOC2 Type II & GDPR Compliant</p>
-          </div>
+          <a
+            href={
+              activeTab === 'pricing' ? '/pricing' :
+              activeTab === 'articles' ? '/articles' :
+              activeTab === 'updates' ? '/updates' :
+              activeTab === 'case_studies' ? '/case-studies' : '/news'
+            }
+            target="_blank"
+            rel="noreferrer"
+            className="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 font-medium"
+          >
+            <span>Open live /{activeTab === 'case_studies' ? 'case-studies' : activeTab} page</span>
+            <ArrowUpRight size={13} />
+          </a>
         </div>
 
-        {/* Dashboard Navigation Tabs */}
-        <div className="mb-6 flex border-b border-[hsl(var(--foreground)/.14)] overflow-x-auto scrollbar-none">
-          <button
-            onClick={() => setActiveTab('engagements')}
-            className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs font-semibold transition-colors whitespace-nowrap ${
-              activeTab === 'engagements'
-                ? 'border-[hsl(var(--accent))] text-[hsl(var(--accent))]'
-                : 'border-transparent text-[hsl(var(--foreground)/.6)] hover:text-[hsl(var(--foreground))]'
-            }`}
-          >
-            <Briefcase size={15} /> Active Engagements ({filteredEngagements.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('talent')}
-            className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs font-semibold transition-colors whitespace-nowrap ${
-              activeTab === 'talent'
-                ? 'border-[hsl(var(--accent))] text-[hsl(var(--accent))]'
-                : 'border-transparent text-[hsl(var(--foreground)/.6)] hover:text-[hsl(var(--foreground))]'
-            }`}
-          >
-            <Users size={15} /> Deployed Talent Roster
-          </button>
-          <button
-            onClick={() => setActiveTab('allocation')}
-            className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs font-semibold transition-colors whitespace-nowrap ${
-              activeTab === 'allocation'
-                ? 'border-[hsl(var(--accent))] text-[hsl(var(--accent))]'
-                : 'border-transparent text-[hsl(var(--foreground)/.6)] hover:text-[hsl(var(--foreground))]'
-            }`}
-          >
-            <Building2 size={15} /> Practice Allocation
-          </button>
-          <button
-            onClick={() => setActiveTab('audit')}
-            className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs font-semibold transition-colors whitespace-nowrap ${
-              activeTab === 'audit'
-                ? 'border-[hsl(var(--accent))] text-[hsl(var(--accent))]'
-                : 'border-transparent text-[hsl(var(--foreground)/.6)] hover:text-[hsl(var(--foreground))]'
-            }`}
-          >
-            <Shield size={15} /> Security & Governance Logs
-          </button>
-        </div>
+        {/* SECTION 1: PRICING PLANS */}
+        {activeTab === 'pricing' && (
+          <div className="space-y-6">
+            {pricingList
+              .filter(p => !searchTerm || p.title.toLowerCase().includes(searchTerm.toLowerCase()) || p.description.toLowerCase().includes(searchTerm.toLowerCase()))
+              .map((plan) => {
+                const isPlan01 = plan.number === '01' || plan.id === 'full-time-remote';
+                const isPlan02 = plan.number === '02' || plan.id === 'virtual-assistant';
+                const isPlan03 = plan.number === '03' || plan.id === 'operations-coordinator';
 
-        {/* Tab 1: Active Engagements */}
-        {activeTab === 'engagements' && (
-          <div className="rounded-xl border border-[hsl(var(--foreground)/.14)] bg-[hsl(var(--card))] overflow-hidden">
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[hsl(var(--foreground)/.12)] p-4 bg-[hsl(var(--muted)/.3)]">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[hsl(var(--foreground)/.7)]">
-                <Filter size={14} /> Filter Status:
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {['all', 'active', 'inreview', 'completed'].map((st) => (
-                  <button
-                    key={st}
-                    onClick={() => setFilterStatus(st)}
-                    className={`rounded-md px-3 py-1 text-xs capitalize transition-colors ${
-                      filterStatus === st 
-                        ? 'bg-[hsl(var(--accent))] text-white font-bold' 
-                        : 'bg-[hsl(var(--background))] border border-[hsl(var(--foreground)/.15)] text-[hsl(var(--foreground)/.7)] hover:bg-[hsl(var(--muted))]'
-                    }`}
-                  >
-                    {st === 'inreview' ? 'In Review' : st}
-                  </button>
-                ))}
-              </div>
-            </div>
+                return (
+                  <div key={plan.id} className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm hover:border-slate-300 transition-all">
+                    {/* Header */}
+                    <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 pb-5 mb-5">
+                      <div>
+                        <span className="serif text-3xl font-normal text-[#1a8af9]">{plan.number}</span>
+                        <h3 className="text-xl font-semibold text-slate-900 mt-0.5">{plan.title}</h3>
+                        {plan.subtitle && (
+                          <p className="font-mono text-xs uppercase tracking-wider text-[#1a8af9] mt-1 font-semibold">
+                            {plan.subtitle}
+                          </p>
+                        )}
+                      </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="border-b border-[hsl(var(--foreground)/.12)] bg-[hsl(var(--muted)/.4)] uppercase tracking-wider text-[hsl(var(--foreground)/.6)] font-mono text-[10px]">
-                  <tr>
-                    <th className="py-3 px-4">Engagement Code</th>
-                    <th className="py-3 px-4">Project Title</th>
-                    <th className="py-3 px-4">Practice Domain</th>
-                    <th className="py-3 px-4">Lead Advisor</th>
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4">Progress</th>
-                    <th className="py-3 px-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[hsl(var(--foreground)/.08)]">
-                  {filteredEngagements.map((item) => (
-                    <tr key={item.id} className="hover:bg-[hsl(var(--muted)/.3)] transition-colors">
-                      <td className="py-4 px-4 font-mono font-medium text-[hsl(var(--accent))]">{item.id}</td>
-                      <td className="py-4 px-4 font-semibold max-w-[240px] truncate">{item.title}</td>
-                      <td className="py-4 px-4 text-[hsl(var(--foreground)/.7)]">{item.category}</td>
-                      <td className="py-4 px-4">{item.lead}</td>
-                      <td className="py-4 px-4">
-                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                          item.status === 'Active' 
-                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' 
-                            : item.status === 'In Review' 
-                            ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30' 
-                            : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/30'
-                        }`}>
-                          <span className={`h-1.5 w-1.5 rounded-full ${
-                            item.status === 'Active' ? 'bg-emerald-500' : item.status === 'In Review' ? 'bg-amber-500' : 'bg-blue-500'
-                          }`} />
-                          {item.status}
-                        </span>
-                      </td>
-                      <td className="py-4 px-4 w-32">
-                        <div className="flex items-center gap-2">
-                          <div className="h-1.5 w-full rounded-full bg-[hsl(var(--foreground)/.12)] overflow-hidden">
-                            <div 
-                              className="h-full bg-[hsl(var(--accent))] rounded-full" 
-                              style={{ width: `${item.progress}%` }} 
-                            />
-                          </div>
-                          <span className="mono text-[10px] font-bold">{item.progress}%</span>
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-2xl border border-[#abd4fe] bg-[#e9f4ff] px-5 py-3 text-right shadow-xs min-w-[210px]">
+                          <span className="block text-[10px] uppercase tracking-[0.14em] text-[#50636b] font-mono font-medium">
+                            {plan.priceStructure.toLowerCase() === 'custom' ? 'PRICING STRUCTURE' : (plan.priceNote || 'ESTIMATED MONTHLY SALARY')}
+                          </span>
+                          <span className="serif text-2xl font-normal text-[#1a8af9] leading-tight block my-0.5">
+                            {plan.priceStructure}
+                          </span>
+                          {plan.priceStructure.toLowerCase() === 'custom' && (
+                            <span className="block text-[11px] text-[#50636b] font-sans">
+                              {plan.priceNote || 'Based on role, experience & location'}
+                            </span>
+                          )}
                         </div>
-                      </td>
-                      <td className="py-4 px-4 text-right">
-                        <button 
-                          onClick={() => showToast(`Downloaded Briefing for ${item.id}`)}
-                          className="inline-flex items-center gap-1 rounded border border-[hsl(var(--foreground)/.15)] px-2.5 py-1 text-[11px] font-semibold hover:border-[hsl(var(--accent))] hover:text-[hsl(var(--accent))]"
-                        >
-                          <FileText size={12} /> Briefing
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
 
-        {/* Tab 2: Talent Roster */}
-        {activeTab === 'talent' && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {specialists.map((sp) => (
-              <div key={sp.name} className="rounded-xl border border-[hsl(var(--foreground)/.14)] bg-[hsl(var(--card))] p-5 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="rounded bg-[hsl(var(--accent)/.12)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[hsl(var(--accent))]">
-                      {sp.status}
-                    </span>
-                    <span className="mono text-[10px] text-[hsl(var(--foreground)/.5)]">{sp.experience} Exp</span>
-                  </div>
-                  <h3 className="mt-3 text-sm font-semibold">{sp.name}</h3>
-                  <p className="mt-1 text-xs text-[hsl(var(--foreground)/.7)]">{sp.role}</p>
-                  <p className="mt-2 text-[11px] font-mono text-[hsl(var(--foreground)/.5)]">&bull; {sp.location}</p>
-                </div>
-                <button 
-                  onClick={() => showToast(`Contact request sent to ${sp.name}`)}
-                  className="mt-4 w-full rounded border border-[hsl(var(--foreground)/.18)] py-1.5 text-xs font-semibold hover:border-[hsl(var(--accent))] hover:text-[hsl(var(--accent))] transition-colors"
-                >
-                  Contact Specialist
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Tab 3: Practice Allocation */}
-        {activeTab === 'allocation' && (
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-xl border border-[hsl(var(--foreground)/.14)] bg-[hsl(var(--card))] p-6">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-[hsl(var(--accent))]">Advisory Resource Allocation</h3>
-              <p className="mt-1 text-xs text-[hsl(var(--foreground)/.6)]">Quarterly breakdown of deployed consulting assets across practice lines.</p>
-              
-              <div className="mt-6 space-y-4">
-                <div>
-                  <div className="flex justify-between text-xs font-semibold mb-1">
-                    <span>Paralegal & Legal Advisory</span>
-                    <span className="mono">38% ($1.83M)</span>
-                  </div>
-                  <div className="h-2.5 w-full rounded-full bg-[hsl(var(--foreground)/.1)] overflow-hidden">
-                    <div className="h-full bg-[hsl(var(--accent))] rounded-full" style={{ width: '38%' }} />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between text-xs font-semibold mb-1">
-                    <span>Financial & Tax Structuring</span>
-                    <span className="mono">29% ($1.40M)</span>
-                  </div>
-                  <div className="h-2.5 w-full rounded-full bg-[hsl(var(--foreground)/.1)] overflow-hidden">
-                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: '29%' }} />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between text-xs font-semibold mb-1">
-                    <span>Technology & AI Solutions</span>
-                    <span className="mono">21% ($1.01M)</span>
-                  </div>
-                  <div className="h-2.5 w-full rounded-full bg-[hsl(var(--foreground)/.1)] overflow-hidden">
-                    <div className="h-full bg-blue-500 rounded-full" style={{ width: '21%' }} />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between text-xs font-semibold mb-1">
-                    <span>Specialized Executive Staffing</span>
-                    <span className="mono">12% ($0.58M)</span>
-                  </div>
-                  <div className="h-2.5 w-full rounded-full bg-[hsl(var(--foreground)/.1)] overflow-hidden">
-                    <div className="h-full bg-amber-500 rounded-full" style={{ width: '12%' }} />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-[hsl(var(--foreground)/.14)] bg-[hsl(var(--card))] p-6 flex flex-col justify-between">
-              <div>
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-[hsl(var(--accent))]">Regional Node Operations</h3>
-                <p className="mt-1 text-xs text-[hsl(var(--foreground)/.6)]">Active cross-border execution corridors.</p>
-
-                <div className="mt-6 space-y-3">
-                  <div className="flex items-center justify-between rounded-lg border border-[hsl(var(--foreground)/.1)] p-3">
-                    <div className="flex items-center gap-3">
-                      <span className="flex h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
-                      <div>
-                        <div className="text-xs font-bold">United States Desk</div>
-                        <div className="text-[10px] text-[hsl(var(--foreground)/.6)]">Delaware &bull; New York &bull; California</div>
+                        <div className="flex flex-col gap-1 border-l border-slate-100 pl-3">
+                          <button
+                            onClick={() => handleOpenEdit(plan)}
+                            className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Edit Plan"
+                          >
+                            <Edit3 size={16} />
+                          </button>
+                          <button
+                            onClick={() => setDeleteConfirmId(plan.id)}
+                            className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            title="Delete Plan"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                    <span className="mono text-xs font-semibold">Active (48 Specialists)</span>
-                  </div>
 
-                  <div className="flex items-center justify-between rounded-lg border border-[hsl(var(--foreground)/.1)] p-3">
-                    <div className="flex items-center gap-3">
-                      <span className="flex h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
-                      <div>
-                        <div className="text-xs font-bold">India Desk</div>
-                        <div className="text-[10px] text-[hsl(var(--foreground)/.6)]">Bengaluru &bull; Mumbai &bull; Delhi NCR</div>
+                    {/* Description */}
+                    <p className="text-[14px] leading-relaxed text-slate-600 max-w-[900px] mb-5">
+                      {plan.description}
+                    </p>
+
+                    {/* Plan 01 specific Banner */}
+                    {isPlan01 && (
+                      <div className="rounded-xl border border-[#CCE8F4] bg-[#E8F4FA]/80 p-4 mb-6">
+                        <h4 className="font-semibold text-sm text-[#0F172A] mb-1 flex items-center gap-2">
+                          <ShieldCheck size={16} className="text-[#1a8af9] shrink-0" />
+                          <span>Build long-term remote teams, without the overhead</span>
+                        </h4>
+                        <p className="text-xs text-[#475569] leading-relaxed">
+                          We handle sourcing, vetting, and onboarding so you can build a stable, integrated remote team — not a rotating cast of contractors.
+                        </p>
                       </div>
-                    </div>
-                    <span className="mono text-xs font-semibold">Active (80 Specialists)</span>
-                  </div>
-                </div>
-              </div>
+                    )}
 
-              <div className="mt-6 rounded-lg bg-[hsl(var(--muted)/.5)] p-4 text-xs">
-                <div className="font-semibold text-[hsl(var(--accent))] flex items-center gap-1.5">
-                  <ShieldCheck size={14} /> 24/7 Sovereign Audit Protection
-                </div>
-                <p className="mt-1 text-[11px] text-[hsl(var(--foreground)/.7)]">
-                  All cross-border legal and financial filings are synchronized in real-time under strict dual-jurisdiction compliance protocols.
-                </p>
-              </div>
-            </div>
+                    {/* Pills Section */}
+                    {isPlan01 && (
+                      <div className="mb-6 border-b border-slate-100 pb-5">
+                        <span className="font-mono text-[11px] uppercase tracking-wider text-[#1a8af9] font-semibold block mb-2">
+                          ROLES WE PLACE
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                          {(plan.roles || []).map((r, i) => (
+                            <span key={i} className="rounded-lg border border-[#BCE1E8] bg-[#E5F3F6] px-3 py-1 text-xs text-[#0A3A40] font-medium">
+                              {r}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {isPlan02 && (
+                      <div className="grid gap-6 md:grid-cols-2 mb-6 border-b border-slate-100 pb-5">
+                        <div>
+                          <span className="font-mono text-[11px] uppercase tracking-wider text-[#1a8af9] font-semibold block mb-2">
+                            WHO IT'S BUILT FOR
+                          </span>
+                          <div className="flex flex-wrap gap-2">
+                            {["eCommerce", "Real Estate", "Customer Support", "Busy Founders"].map((item) => (
+                              <span key={item} className="rounded-lg border border-[#BCE1E8] bg-[#E5F3F6] px-3 py-1 text-xs text-[#0A3A40] font-medium">
+                                {item}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <span className="font-mono text-[11px] uppercase tracking-wider text-[#1a8af9] font-semibold block mb-2">
+                            ROLES AVAILABLE
+                          </span>
+                          <div className="flex flex-wrap gap-2">
+                            {(plan.roles || []).map((r, i) => (
+                              <span key={i} className="rounded-lg border border-[#BCE1E8] bg-[#E5F3F6] px-3 py-1 text-xs text-[#0A3A40] font-medium">
+                                {r}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {isPlan03 && (
+                      <div className="mb-6 border-b border-slate-100 pb-5">
+                        <span className="font-mono text-[11px] uppercase tracking-wider text-[#1a8af9] font-semibold block mb-2">
+                          WHO IT'S BUILT FOR
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                          {(plan.roles || []).map((r, i) => (
+                            <span key={i} className="rounded-lg border border-[#BCE1E8] bg-[#E5F3F6] px-3 py-1 text-xs text-[#0A3A40] font-medium">
+                              {r}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Generic custom plan pills if not 01/02/03 */}
+                    {!isPlan01 && !isPlan02 && !isPlan03 && plan.roles && plan.roles.length > 0 && (
+                      <div className="mb-6 border-b border-slate-100 pb-5">
+                        <span className="font-mono text-[11px] uppercase tracking-wider text-[#1a8af9] font-semibold block mb-2">
+                          ROLES &amp; SCOPE
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                          {plan.roles.map((r, i) => (
+                            <span key={i} className="rounded-lg border border-[#BCE1E8] bg-[#E5F3F6] px-3 py-1 text-xs text-[#0A3A40] font-medium">
+                              {r}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Features section */}
+                    {isPlan01 && (
+                      <div className="grid gap-6 md:grid-cols-2">
+                        <div>
+                          <span className="font-mono text-[11px] uppercase tracking-wider text-[#1a8af9] font-semibold block mb-2.5">
+                            WHAT'S INCLUDED
+                          </span>
+                          <ul className="space-y-2">
+                            {(plan.whatsIncluded || []).map((item, idx) => (
+                              <li key={idx} className="flex items-start gap-2 text-xs md:text-sm text-[#334155]">
+                                <Check size={15} className="text-[#1a8af9] shrink-0 mt-0.5" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <div>
+                          <span className="font-mono text-[11px] uppercase tracking-wider text-[#1a8af9] font-semibold block mb-2.5">
+                            BEST FIT FOR
+                          </span>
+                          <ul className="space-y-2">
+                            {(plan.bestFit || []).map((item, idx) => (
+                              <li key={idx} className="flex items-start gap-2 text-xs md:text-sm text-[#334155]">
+                                <Check size={15} className="text-[#334155] shrink-0 mt-0.5" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+
+                    {isPlan02 && (
+                      <div>
+                        <span className="font-mono text-[11px] uppercase tracking-wider text-[#1a8af9] font-semibold block mb-2.5">
+                          BEST FIT FOR
+                        </span>
+                        <div className="grid gap-2.5 sm:grid-cols-2">
+                          {(plan.bestFit || []).map((item, idx) => (
+                            <div key={idx} className="flex items-start gap-2 text-xs md:text-sm text-[#334155]">
+                              <Check size={15} className="text-[#1a8af9] shrink-0 mt-0.5" />
+                              <span>{item}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {isPlan03 && (
+                      <div>
+                        <span className="font-mono text-[11px] uppercase tracking-wider text-[#1a8af9] font-semibold block mb-2.5">
+                          BEST FIT FOR
+                        </span>
+                        <div className="grid gap-2.5 sm:grid-cols-2">
+                          {(plan.bestFit || []).map((item, idx) => (
+                            <div key={idx} className="flex items-start gap-2 text-xs md:text-sm text-[#334155]">
+                              <Check size={15} className="text-[#334155] shrink-0 mt-0.5" />
+                              <span>{item}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {!isPlan01 && !isPlan02 && !isPlan03 && (
+                      <div className="grid gap-6 md:grid-cols-2">
+                        {plan.whatsIncluded && plan.whatsIncluded.length > 0 && (
+                          <div>
+                            <span className="font-mono text-[11px] uppercase tracking-wider text-[#1a8af9] font-semibold block mb-2.5">
+                              WHAT'S INCLUDED
+                            </span>
+                            <ul className="space-y-2">
+                              {plan.whatsIncluded.map((item, idx) => (
+                                <li key={idx} className="flex items-start gap-2 text-xs md:text-sm text-[#334155]">
+                                  <Check size={15} className="text-[#1a8af9] shrink-0 mt-0.5" />
+                                  <span>{item}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {plan.bestFit && plan.bestFit.length > 0 && (
+                          <div>
+                            <span className="font-mono text-[11px] uppercase tracking-wider text-[#1a8af9] font-semibold block mb-2.5">
+                              BEST FIT FOR
+                            </span>
+                            <ul className="space-y-2">
+                              {plan.bestFit.map((item, idx) => (
+                                <li key={idx} className="flex items-start gap-2 text-xs md:text-sm text-[#334155]">
+                                  <Check size={15} className="text-[#334155] shrink-0 mt-0.5" />
+                                  <span>{item}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
           </div>
         )}
 
-        {/* Tab 4: Security Logs */}
-        {activeTab === 'audit' && (
-          <div className="rounded-xl border border-[hsl(var(--foreground)/.14)] bg-[hsl(var(--card))] p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-[hsl(var(--accent))]">Security & Governance Audit Trail</h3>
-              <span className="mono text-xs text-[hsl(var(--foreground)/.5)]">SSL 256-Bit Encrypted Gateway</span>
-            </div>
+        {/* SECTION 2: ARTICLES */}
+        {activeTab === 'articles' && (
+          <div className="space-y-4">
+            {articlesList
+              .filter(a => !searchTerm || a.title.toLowerCase().includes(searchTerm.toLowerCase()) || a.category.toLowerCase().includes(searchTerm.toLowerCase()))
+              .map((art) => (
+                <div key={art.id} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:border-slate-300 transition-all">
+                  <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-mono font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded">
+                        #{art.number}
+                      </span>
+                      <div>
+                        <h3 className="text-lg font-semibold text-slate-900">{art.title}</h3>
+                        <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+                          <span className="bg-[#CEE7EA]/40 text-[#0A3A40] px-2 py-0.5 rounded font-medium">{art.category}</span>
+                          <span>•</span>
+                          <span>{art.readTime}</span>
+                          <span>•</span>
+                          <span className="font-mono text-slate-400">/{art.slug}</span>
+                        </div>
+                      </div>
+                    </div>
 
-            <div className="space-y-3">
-              {auditLogs.map((log, idx) => (
-                <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between rounded-lg border border-[hsl(var(--foreground)/.1)] p-3 text-xs gap-2">
-                  <div className="flex items-center gap-3">
-                    <Clock size={14} className="text-[hsl(var(--accent))]" />
-                    <span className="font-semibold">{log.event}</span>
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={`/articles/${art.slug}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+                        title="View Article Page"
+                      >
+                        <ExternalLink size={15} />
+                      </a>
+                      <button
+                        onClick={() => handleOpenEdit(art)}
+                        className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Edit Article"
+                      >
+                        <Edit3 size={15} />
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirmId(art.id)}
+                        className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                        title="Delete Article"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-4 text-[11px] text-[hsl(var(--foreground)/.6)]">
-                    <span>User: <strong>{log.user}</strong></span>
-                    <span className="font-mono bg-[hsl(var(--muted))] px-2 py-0.5 rounded">{log.ip}</span>
-                    <span className="mono font-bold text-[hsl(var(--accent))]">{log.time}</span>
+
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    {art.excerpt}
+                  </p>
+                </div>
+              ))}
+          </div>
+        )}
+
+        {/* SECTION 3: UPDATES */}
+        {activeTab === 'updates' && (
+          <div className="space-y-4">
+            {updatesList
+              .filter(u => !searchTerm || u.title.toLowerCase().includes(searchTerm.toLowerCase()) || u.content.toLowerCase().includes(searchTerm.toLowerCase()))
+              .map((upd) => (
+                <div key={upd.id} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:border-slate-300 transition-all">
+                  <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
+                    <div>
+                      <div className="flex items-center gap-2 text-xs font-mono text-slate-500 mb-1">
+                        <span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-semibold">{upd.category}</span>
+                        <span>•</span>
+                        <span>{upd.date}</span>
+                      </div>
+                      <h3 className="text-lg font-semibold text-slate-900">{upd.title}</h3>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleOpenEdit(upd)}
+                        className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Edit Update"
+                      >
+                        <Edit3 size={15} />
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirmId(upd.id)}
+                        className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                        title="Delete Update"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-3">
+                    {upd.content}
+                  </p>
+
+                  {upd.linkText && upd.linkHref && (
+                    <div className="text-xs text-blue-600 font-medium inline-flex items-center gap-1">
+                      <span>Linked action: {upd.linkText}</span>
+                      <span className="text-slate-400 font-mono">({upd.linkHref})</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+          </div>
+        )}
+
+        {/* SECTION 4: CASE STUDIES */}
+        {activeTab === 'case_studies' && (
+          <div className="space-y-4">
+            {caseStudiesList
+              .filter(c => !searchTerm || c.title.toLowerCase().includes(searchTerm.toLowerCase()) || c.client.toLowerCase().includes(searchTerm.toLowerCase()))
+              .map((cs) => (
+                <div key={cs.id} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:border-slate-300 transition-all">
+                  <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
+                    <div>
+                      <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
+                        <span className="bg-[#CEE7EA]/50 text-[#0A3A40] font-semibold px-2 py-0.5 rounded">{cs.category}</span>
+                        <span>•</span>
+                        <span className="font-semibold text-slate-700">{cs.client}</span>
+                        <span>•</span>
+                        <span>{cs.date}</span>
+                      </div>
+                      <h3 className="text-lg font-semibold text-slate-900">{cs.title}</h3>
+                      {cs.metrics && (
+                        <span className="inline-block mt-1 text-xs font-mono bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded font-medium">
+                          {cs.metrics}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={`/case-studies/${cs.slug}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+                        title="View Case Study"
+                      >
+                        <ExternalLink size={15} />
+                      </a>
+                      <button
+                        onClick={() => handleOpenEdit(cs)}
+                        className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Edit Case Study"
+                      >
+                        <Edit3 size={15} />
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirmId(cs.id)}
+                        className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                        title="Delete Case Study"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-3 text-xs">
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                      <span className="font-semibold text-slate-700 block mb-1">Challenge</span>
+                      <p className="text-slate-600 line-clamp-3">{cs.challenge}</p>
+                    </div>
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                      <span className="font-semibold text-slate-700 block mb-1">Solution</span>
+                      <p className="text-slate-600 line-clamp-3">{cs.solution}</p>
+                    </div>
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                      <span className="font-semibold text-slate-700 block mb-1">Outcome</span>
+                      <p className="text-slate-600 line-clamp-3">{cs.outcome}</p>
+                    </div>
                   </div>
                 </div>
               ))}
-            </div>
           </div>
         )}
+
+        {/* SECTION 5: NEWS */}
+        {activeTab === 'news' && (
+          <div className="space-y-4">
+            {newsList
+              .filter(n => !searchTerm || n.title.toLowerCase().includes(searchTerm.toLowerCase()) || n.content.toLowerCase().includes(searchTerm.toLowerCase()))
+              .map((news) => (
+                <div key={news.id} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:border-slate-300 transition-all">
+                  <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
+                    <div>
+                      <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
+                        <span className="bg-purple-100 text-purple-800 font-semibold px-2 py-0.5 rounded">{news.category}</span>
+                        <span>•</span>
+                        <span>{news.date}</span>
+                      </div>
+                      <h3 className="text-lg font-semibold text-slate-900">{news.title}</h3>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleOpenEdit(news)}
+                        className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Edit News"
+                      >
+                        <Edit3 size={15} />
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirmId(news.id)}
+                        className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                        title="Delete News"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    {news.content}
+                  </p>
+                </div>
+              ))}
+          </div>
+        )}
+
       </main>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 max-w-sm w-full shadow-2xl animate-fade-in">
+            <div className="flex items-center gap-3 text-rose-600 mb-3">
+              <AlertCircle size={22} />
+              <h4 className="font-semibold text-base text-slate-900">Confirm Deletion</h4>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-600 mb-5">
+              Are you sure you want to delete this record from PostgreSQL? This action cannot be undone.
+            </p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirmId(null)}
+                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDelete(deleteConfirmId)}
+                className="px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg shadow-sm"
+              >
+                Delete Record
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Form Modal (Create or Edit) */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl border border-slate-200 max-w-2xl w-full shadow-2xl animate-fade-in my-8 overflow-hidden">
+            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50">
+              <h3 className="font-semibold text-base text-slate-900">
+                {modalMode === 'create' ? 'Add New' : 'Edit'}{' '}
+                {activeTab === 'pricing' ? 'Pricing Plan' : activeTab === 'articles' ? 'Article' : activeTab === 'updates' ? 'Update' : activeTab === 'case_studies' ? 'Case Study' : 'News'}
+              </h3>
+              <button
+                onClick={() => setModalOpen(false)}
+                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSave} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs sm:text-sm">
+              {/* Pricing Form Fields */}
+              {activeTab === 'pricing' && (
+                <>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">Number (e.g. 01)</label>
+                      <input
+                        type="text"
+                        required
+                        value={pricingForm.number}
+                        onChange={(e) => setPricingForm({ ...pricingForm, number: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block font-semibold text-slate-700 mb-1">Plan Title</label>
+                      <input
+                        type="text"
+                        required
+                        value={pricingForm.title}
+                        onChange={(e) => setPricingForm({ ...pricingForm, title: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                        placeholder="e.g. Full-Time Remote Employees"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Subtitle / Tagline</label>
+                    <input
+                      type="text"
+                      value={pricingForm.subtitle}
+                      onChange={(e) => setPricingForm({ ...pricingForm, subtitle: e.target.value })}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                      placeholder="e.g. Transparent pricing, built around the hire"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">Pricing Structure</label>
+                      <input
+                        type="text"
+                        required
+                        value={pricingForm.priceStructure}
+                        onChange={(e) => setPricingForm({ ...pricingForm, priceStructure: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                        placeholder="e.g. Custom or $500–$900 USD"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">Price Note / Label</label>
+                      <input
+                        type="text"
+                        value={pricingForm.priceNote}
+                        onChange={(e) => setPricingForm({ ...pricingForm, priceNote: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                        placeholder="e.g. Estimated Monthly Salary"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Description</label>
+                    <textarea
+                      rows={3}
+                      required
+                      value={pricingForm.description}
+                      onChange={(e) => setPricingForm({ ...pricingForm, description: e.target.value })}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Roles We Place (one per line)</label>
+                    <textarea
+                      rows={3}
+                      value={pricingForm.roles}
+                      onChange={(e) => setPricingForm({ ...pricingForm, roles: e.target.value })}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-mono text-xs"
+                      placeholder="Paralegal and Secretarial&#10;Book-keeping&#10;Accountant"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">What's Included (one per line)</label>
+                      <textarea
+                        rows={4}
+                        value={pricingForm.whatsIncluded}
+                        onChange={(e) => setPricingForm({ ...pricingForm, whatsIncluded: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-mono text-xs"
+                        placeholder="End-to-end recruitment&#10;Pre-vetted candidate shortlists"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">Best Fit For (one per line)</label>
+                      <textarea
+                        rows={4}
+                        value={pricingForm.bestFit}
+                        onChange={(e) => setPricingForm({ ...pricingForm, bestFit: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-mono text-xs"
+                        placeholder="Companies hiring long-term remote talent&#10;Legal and operational roles"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Articles Form Fields */}
+              {activeTab === 'articles' && (
+                <>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">Number (e.g. 1)</label>
+                      <input
+                        type="text"
+                        required
+                        value={articleForm.number}
+                        onChange={(e) => setArticleForm({ ...articleForm, number: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block font-semibold text-slate-700 mb-1">Article Title</label>
+                      <input
+                        type="text"
+                        required
+                        value={articleForm.title}
+                        onChange={(e) => setArticleForm({ ...articleForm, title: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">Category</label>
+                      <input
+                        type="text"
+                        required
+                        value={articleForm.category}
+                        onChange={(e) => setArticleForm({ ...articleForm, category: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                        placeholder="e.g. Legal Support, Remote Staffing"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">Read Time</label>
+                      <input
+                        type="text"
+                        value={articleForm.readTime}
+                        onChange={(e) => setArticleForm({ ...articleForm, readTime: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                        placeholder="e.g. 5 min"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Slug (URL path)</label>
+                    <input
+                      type="text"
+                      value={articleForm.slug}
+                      onChange={(e) => setArticleForm({ ...articleForm, slug: e.target.value })}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-mono text-xs"
+                      placeholder="leave empty to generate from title"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Excerpt</label>
+                    <textarea
+                      rows={3}
+                      required
+                      value={articleForm.excerpt}
+                      onChange={(e) => setArticleForm({ ...articleForm, excerpt: e.target.value })}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Full Article Content (Optional Markdown/HTML)</label>
+                    <textarea
+                      rows={4}
+                      value={articleForm.content}
+                      onChange={(e) => setArticleForm({ ...articleForm, content: e.target.value })}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-mono text-xs"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Updates Form Fields */}
+              {activeTab === 'updates' && (
+                <>
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Update Title</label>
+                    <input
+                      type="text"
+                      required
+                      value={updateForm.title}
+                      onChange={(e) => setUpdateForm({ ...updateForm, title: e.target.value })}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">Category</label>
+                      <input
+                        type="text"
+                        required
+                        value={updateForm.category}
+                        onChange={(e) => setUpdateForm({ ...updateForm, category: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">Date</label>
+                      <input
+                        type="text"
+                        required
+                        value={updateForm.date}
+                        onChange={(e) => setUpdateForm({ ...updateForm, date: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Update Content</label>
+                    <textarea
+                      rows={4}
+                      required
+                      value={updateForm.content}
+                      onChange={(e) => setUpdateForm({ ...updateForm, content: e.target.value })}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">Action Link Text (Optional)</label>
+                      <input
+                        type="text"
+                        value={updateForm.linkText}
+                        onChange={(e) => setUpdateForm({ ...updateForm, linkText: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                        placeholder="e.g. Read full announcement →"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">Action Link URL (Optional)</label>
+                      <input
+                        type="text"
+                        value={updateForm.linkHref}
+                        onChange={(e) => setUpdateForm({ ...updateForm, linkHref: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                        placeholder="e.g. /get-started"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Case Studies Form Fields */}
+              {activeTab === 'case_studies' && (
+                <>
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Case Study Title</label>
+                    <input
+                      type="text"
+                      required
+                      value={caseStudyForm.title}
+                      onChange={(e) => setCaseStudyForm({ ...caseStudyForm, title: e.target.value })}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">Client Name / Type</label>
+                      <input
+                        type="text"
+                        required
+                        value={caseStudyForm.client}
+                        onChange={(e) => setCaseStudyForm({ ...caseStudyForm, client: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                        placeholder="e.g. Global FinTech Operator"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">Category</label>
+                      <input
+                        type="text"
+                        required
+                        value={caseStudyForm.category}
+                        onChange={(e) => setCaseStudyForm({ ...caseStudyForm, category: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                        placeholder="e.g. Finance & Legal"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">Date / Period</label>
+                      <input
+                        type="text"
+                        required
+                        value={caseStudyForm.date}
+                        onChange={(e) => setCaseStudyForm({ ...caseStudyForm, date: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                        placeholder="e.g. Q3 2026"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">Key Metrics Highlight</label>
+                      <input
+                        type="text"
+                        value={caseStudyForm.metrics}
+                        onChange={(e) => setCaseStudyForm({ ...caseStudyForm, metrics: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-mono text-xs"
+                        placeholder="e.g. 90-Day Clearance · $180k Saved"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">Slug (URL identifier)</label>
+                      <input
+                        type="text"
+                        value={caseStudyForm.slug}
+                        onChange={(e) => setCaseStudyForm({ ...caseStudyForm, slug: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-mono text-xs"
+                        placeholder="leave empty to generate"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">The Challenge</label>
+                    <textarea
+                      rows={2}
+                      required
+                      value={caseStudyForm.challenge}
+                      onChange={(e) => setCaseStudyForm({ ...caseStudyForm, challenge: e.target.value })}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">The Solution</label>
+                    <textarea
+                      rows={2}
+                      required
+                      value={caseStudyForm.solution}
+                      onChange={(e) => setCaseStudyForm({ ...caseStudyForm, solution: e.target.value })}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">The Outcome</label>
+                    <textarea
+                      rows={2}
+                      required
+                      value={caseStudyForm.outcome}
+                      onChange={(e) => setCaseStudyForm({ ...caseStudyForm, outcome: e.target.value })}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* News Form Fields */}
+              {activeTab === 'news' && (
+                <>
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">News Headline</label>
+                    <input
+                      type="text"
+                      required
+                      value={newsForm.title}
+                      onChange={(e) => setNewsForm({ ...newsForm, title: e.target.value })}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">Category</label>
+                      <input
+                        type="text"
+                        required
+                        value={newsForm.category}
+                        onChange={(e) => setNewsForm({ ...newsForm, category: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                        placeholder="e.g. Company News, Partnerships"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">Date</label>
+                      <input
+                        type="text"
+                        required
+                        value={newsForm.date}
+                        onChange={(e) => setNewsForm({ ...newsForm, date: e.target.value })}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">News Story / Content</label>
+                    <textarea
+                      rows={5}
+                      required
+                      value={newsForm.content}
+                      onChange={(e) => setNewsForm({ ...newsForm, content: e.target.value })}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-slate-800"
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setModalOpen(false)}
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 text-xs font-semibold text-white bg-[#02060c] hover:bg-slate-800 rounded-lg shadow-sm"
+                >
+                  {modalMode === 'create' ? 'Publish to PostgreSQL' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

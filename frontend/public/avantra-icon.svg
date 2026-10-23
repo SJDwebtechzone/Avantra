@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 252 252" fill="none">
+  <defs>
+    <linearGradient id="avantraFaviconGrad" x1="0" y1="251.11" x2="251.11" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#02060c" />
+      <stop offset="100%" stop-color="#198afa" />
+    </linearGradient>
+  </defs>
+  <path d="M 73.62 68.07 L 183.03 68.07 L 183.03 177.48 L 251.11 245.56 L 251.11 0 L 5.55 0 L 73.62 68.07 Z M 177.48 183.03 L 68.07 183.03 L 68.07 73.62 L 0 5.55 L 0 251.11 L 245.56 251.11 L 177.48 183.03 Z" fill="url(#avantraFaviconGrad)" />
+</svg>

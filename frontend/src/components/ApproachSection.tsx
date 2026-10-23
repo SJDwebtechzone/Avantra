@@ -25,7 +25,7 @@ export const ApproachSection: React.FC = () => {
                 <div key={num} className="process-step" data-testid={`step-process-${num}`}>
                   <span className="eyebrow">{num}</span>
                   <h3 className="text-xl font-bold mt-1 mb-2">{title}</h3>
-                  <p className="text-sm text-[hsl(var(--foreground)/.66)] leading-relaxed">{desc}</p>
+                  <p className="text-sm text-[hsl(var(--foreground)/.92)] font-normal leading-relaxed">{desc}</p>
                 </div>
               ))}
             </div>

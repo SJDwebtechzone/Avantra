@@ -25,7 +25,7 @@ export const AboutSection: React.FC = () => {
               <span className="text-[11px] uppercase tracking-[0.12em] font-medium text-[hsl(var(--foreground)/.85)] group-hover:text-[hsl(var(--accent))] transition-colors">
                 OUR STORY
               </span>
-              <ArrowRight size={13} className="text-[hsl(var(--foreground)/.6)] group-hover:text-[hsl(var(--accent))] group-hover:translate-x-1 transition-all" />
+              <ArrowRight size={13} className="text-[hsl(var(--foreground)/.8)] group-hover:text-[hsl(var(--accent))] group-hover:translate-x-1 transition-all" />
             </a>
 
             <a 
@@ -36,7 +36,7 @@ export const AboutSection: React.FC = () => {
               <span className="text-[11px] uppercase tracking-[0.12em] font-medium text-[hsl(var(--foreground)/.85)] group-hover:text-[hsl(var(--accent))] transition-colors">
              Our Approach
               </span>
-              <ArrowRight size={13} className="text-[hsl(var(--foreground)/.6)] group-hover:text-[hsl(var(--accent))] group-hover:translate-x-1 transition-all" />
+              <ArrowRight size={13} className="text-[hsl(var(--foreground)/.8)] group-hover:text-[hsl(var(--accent))] group-hover:translate-x-1 transition-all" />
             </a>
 
             <a 
@@ -47,7 +47,7 @@ export const AboutSection: React.FC = () => {
               <span className="text-[11px] uppercase tracking-[0.12em] font-medium text-[hsl(var(--foreground)/.85)] group-hover:text-[hsl(var(--accent))] transition-colors">
                 WHY US
               </span>
-              <ArrowRight size={13} className="text-[hsl(var(--foreground)/.6)] group-hover:text-[hsl(var(--accent))] group-hover:translate-x-1 transition-all" />
+              <ArrowRight size={13} className="text-[hsl(var(--foreground)/.8)] group-hover:text-[hsl(var(--accent))] group-hover:translate-x-1 transition-all" />
             </a>
 
             <a 
@@ -58,26 +58,26 @@ export const AboutSection: React.FC = () => {
               <span className="text-[11px] uppercase tracking-[0.12em] font-medium text-[hsl(var(--foreground)/.85)] group-hover:text-[hsl(var(--accent))] transition-colors">
                 OUR PRICING
               </span>
-              <ArrowRight size={13} className="text-[hsl(var(--foreground)/.6)] group-hover:text-[hsl(var(--accent))] group-hover:translate-x-1 transition-all" />
+              <ArrowRight size={13} className="text-[hsl(var(--foreground)/.8)] group-hover:text-[hsl(var(--accent))] group-hover:translate-x-1 transition-all" />
             </a>
           </div>
         </div>
 
         <div className="flex flex-col justify-between pt-2">
-          <p className="text-[17px] md:text-[18px] leading-[1.6] text-[hsl(var(--foreground)/.68)] max-w-[500px]">
+          <p className="text-[17px] md:text-[18px] leading-[1.6] text-[hsl(var(--foreground)/.92)] font-normal max-w-[500px]">
             Based in Bangalore and trusted by law firms and businesses across North America and India, Avantra is built for the day-to-day realities behind ambitious work.
           </p>
 
           <div className="mt-12 grid grid-cols-2 gap-8 border-t border-[hsl(var(--foreground)/.15)] pt-6">
             <div>
               <span className="serif text-4xl md:text-5xl font-normal text-[hsl(var(--foreground))]">01</span>
-              <p className="mt-3 text-[11px] uppercase tracking-[0.12em] leading-tight text-[hsl(var(--foreground)/.6)] font-medium">
+              <p className="mt-3 text-[11px] uppercase tracking-[0.12em] leading-tight text-[hsl(var(--foreground)/.82)] font-medium">
                 CLEAR OWNER<br />FOR EVERY BRIEF
               </p>
             </div>
             <div>
               <span className="serif text-4xl md:text-5xl font-normal text-[hsl(var(--foreground))]">∞</span>
-              <p className="mt-3 text-[11px] uppercase tracking-[0.12em] leading-tight text-[hsl(var(--foreground)/.6)] font-medium">
+              <p className="mt-3 text-[11px] uppercase tracking-[0.12em] leading-tight text-[hsl(var(--foreground)/.82)] font-medium">
                 ROOM TO GROW<br />WITH THE WORK
               </p>
             </div>

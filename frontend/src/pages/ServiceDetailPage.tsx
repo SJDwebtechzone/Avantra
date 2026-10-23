@@ -1,5 +1,6 @@
 import React from 'react';
 import { useRoute } from 'wouter';
+import { SEO } from '../components/SEO';
 import { Navbar } from '../components/Navbar';
 import { EnquireSection } from '../components/EnquireSection';
 import { Footer } from '../components/Footer';
@@ -13,6 +14,11 @@ export const ServiceDetailPage: React.FC = () => {
 
   return (
     <main className="site-shell">
+      <SEO 
+        title={`${service.title} | Avantra Consulting`}
+        description={service.summary || service.intro}
+        canonical={`https://avantraconsulting.com/services/${service.slug}`}
+      />
       <Navbar light={true} />
 
       <section className="service-detail-hero dark-panel">
@@ -33,7 +39,7 @@ export const ServiceDetailPage: React.FC = () => {
             <p className="text-[clamp(1.35rem,2.2vw,2rem)] leading-[1.25] text-[hsl(var(--primary-foreground)/.86)]">
               {service.summary}
             </p>
-            <p className="mt-7 max-w-[570px] text-[15px] leading-[1.7] text-[hsl(var(--primary-foreground)/.62)]">
+            <p className="mt-7 max-w-[570px] text-[15px] leading-[1.7] text-[hsl(var(--primary-foreground)/.88)]">
               {service.intro}
             </p>
           </div>

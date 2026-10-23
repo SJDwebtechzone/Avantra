@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { SEO } from '../components/SEO';
 import { Navbar } from '../components/Navbar';
 import { HeroSection } from '../components/HeroSection';
 import { MarqueeBand } from '../components/MarqueeBand';
@@ -24,6 +25,7 @@ export const HomePage: React.FC = () => {
 
   return (
     <main className="site-shell">
+      <SEO canonical="https://avantraconsulting.com/" />
       <Navbar />
       <HeroSection />
       <MarqueeBand />

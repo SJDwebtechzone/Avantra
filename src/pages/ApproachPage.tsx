@@ -1,4 +1,5 @@
 import React from 'react';
+import { SEO } from '../components/SEO';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { kE } from '../data/servicesData';
@@ -6,6 +7,11 @@ import { kE } from '../data/servicesData';
 export const ApproachPage: React.FC = () => {
   return (
     <main className="site-shell bg-[hsl(var(--background))] text-[hsl(var(--foreground))] min-h-screen flex flex-col justify-between">
+      <SEO 
+        title="Our Approach | Built for Seamless Workflow Handoffs"
+        description="Learn how Avantra Consulting designs workflows, defines clear operational boundaries, and integrates remote staff directly into your toolchain."
+        canonical="https://avantraconsulting.com/approach"
+      />
       <Navbar />
 
       <div className="pt-[80px]">
@@ -14,7 +20,7 @@ export const ApproachPage: React.FC = () => {
           <div className="container-wide">
             
             {/* Breadcrumb Navigation */}
-            <div className="flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.14em] text-[hsl(var(--foreground)/.52)] mb-8">
+            <div className="flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.14em] text-[hsl(var(--foreground)/.75)] mb-8">
               <a href="/" className="hover:text-[hsl(var(--accent))] transition-colors">Home</a>
               <span>/</span>
               <span className="mono text-[hsl(var(--accent))] font-semibold">Our Approach</span>
@@ -40,7 +46,7 @@ export const ApproachPage: React.FC = () => {
                     <div key={num} className="process-step" data-testid={`step-process-${num}`}>
                       <span className="eyebrow">{num}</span>
                       <h3 className="text-xl font-bold mt-1 mb-2">{title}</h3>
-                      <p className="text-sm text-[hsl(var(--foreground)/.66)] leading-relaxed">{desc}</p>
+                      <p className="text-sm text-[hsl(var(--foreground)/.92)] font-normal leading-relaxed">{desc}</p>
                     </div>
                   ))}
                 </div>

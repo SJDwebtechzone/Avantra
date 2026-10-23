@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
-import { ArrowRight, Phone, Mail, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Phone, Mail, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 
 export const EnquireSection: React.FC = () => {
-  const [submitted, setSubmitted] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    company: '',
+    email: '',
+    phone: ''
+  });
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [serviceError, setServiceError] = useState(false);
   const [workDetails, setWorkDetails] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [submitted, setSubmitted] = useState(false);
 
   const serviceOptions = [
     'Legal process outsourcing',
@@ -23,13 +31,44 @@ export const EnquireSection: React.FC = () => {
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedServices.length === 0) {
       setServiceError(true);
       return;
     }
-    setSubmitted(true);
+
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    try {
+      const response = await fetch('/api/enquire', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          company: formData.company,
+          email: formData.email,
+          phone: formData.phone,
+          services: selectedServices,
+          message: workDetails
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setSubmitted(true);
+      } else {
+        setSubmitError(data.error || 'Failed to submit enquiry. Please try again.');
+      }
+    } catch (err: any) {
+      console.error('Enquiry submission error:', err);
+      setSubmitError('Unable to connect to the server. Please ensure the backend is running and try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -61,13 +100,14 @@ export const EnquireSection: React.FC = () => {
               <CheckCircle2 size={22} className="mb-5 text-[hsl(var(--accent))]" />
               <h3 className="serif text-4xl font-normal">We have your note.</h3>
               <p className="mt-3 max-w-[420px] text-[14px] text-[hsl(var(--secondary-foreground)/.66)]">
-                Thank you for reaching out. The Avantra team will review your brief and get back to you soon.
+                Thank you for reaching out. The Avantra team will review your brief and get back to you soon at <strong>{formData.email || 'your email'}</strong>.
               </p>
               <button 
                 type="button" 
                 className="line-link mt-7 text-[12px]" 
                 onClick={() => {
                   setSubmitted(false);
+                  setFormData({ name: '', company: '', email: '', phone: '' });
                   setSelectedServices([]);
                   setWorkDetails('');
                 }}
@@ -78,6 +118,13 @@ export const EnquireSection: React.FC = () => {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-8" data-testid="form-enquiry">
+              {submitError && (
+                <div className="p-4 rounded-lg bg-red-950/40 border border-red-500/40 text-red-200 text-sm flex items-center gap-3">
+                  <AlertCircle size={18} className="text-red-400 shrink-0" />
+                  <span>{submitError}</span>
+                </div>
+              )}
+
               {/* Row 1: Full Name & Company Name */}
               <div className="grid gap-8 sm:grid-cols-2">
                 <label className="block space-y-2">
@@ -86,6 +133,8 @@ export const EnquireSection: React.FC = () => {
                     className="contact-field" 
                     name="name" 
                     required 
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Jane Smith" 
                     data-testid="input-name" 
                   />
@@ -96,6 +145,8 @@ export const EnquireSection: React.FC = () => {
                     className="contact-field" 
                     name="company" 
                     required 
+                    value={formData.company}
+                    onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                     placeholder="Your company name" 
                     data-testid="input-company" 
                   />
@@ -111,6 +162,8 @@ export const EnquireSection: React.FC = () => {
                     type="email" 
                     name="email" 
                     required 
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="you@company.com" 
                     data-testid="input-email" 
                   />
@@ -121,6 +174,8 @@ export const EnquireSection: React.FC = () => {
                     className="contact-field" 
                     type="tel" 
                     name="phone" 
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="+1 555 000 0000" 
                     data-testid="input-phone" 
                   />
@@ -183,8 +238,21 @@ export const EnquireSection: React.FC = () => {
 
               {/* Row 5: Submit Button & Subtext */}
               <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between pt-2">
-                <button className="submit-button" type="submit" data-testid="button-submit-enquiry">
-                  Send enquiry <ArrowRight size={16} className="ml-3" />
+                <button 
+                  className="submit-button flex items-center justify-center gap-2" 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  data-testid="button-submit-enquiry"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" /> Submitting...
+                    </>
+                  ) : (
+                    <>
+                      Send enquiry <ArrowRight size={16} className="ml-2" />
+                    </>
+                  )}
                 </button>
                 <span className="text-[11px] text-[hsl(var(--secondary-foreground)/.5)]">
                   Usually replies within one business day.

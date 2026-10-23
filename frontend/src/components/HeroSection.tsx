@@ -13,7 +13,7 @@ export const HeroSection: React.FC = () => {
             across markets.
           </h1>
 
-          <p className="reveal reveal-delay-2 mt-8 max-w-[480px] text-[16px] leading-[1.65] text-[hsl(var(--foreground)/.66)]">
+          <p className="reveal reveal-delay-2 mt-8 max-w-[480px] text-[16px] leading-[1.65] text-[hsl(var(--foreground)/.92)] font-normal">
             We provide specialized business, consulting, technology, staffing, legal, and advisory solutions to organizations across the United States and India.
           </p>
 
@@ -26,8 +26,8 @@ export const HeroSection: React.FC = () => {
             </a>
           </div>
 
-          <div className="reveal reveal-delay-3 mt-14 flex items-center gap-3 text-[11px] text-[hsl(var(--foreground)/.52)]">
-            <span className="h-px w-10 bg-[hsl(var(--accent))]" />
+          <div className="reveal reveal-delay-3 mt-14 flex items-center gap-3 text-[11px] text-[hsl(var(--foreground)/.75)]">
+            <span className="h-px w-10 bg-[#198afa]" />
             <span className="mono uppercase tracking-[.11em]">Solutioning Together</span>
           </div>
         </div>
@@ -40,24 +40,28 @@ export const HeroSection: React.FC = () => {
             <span className="orbit-dot one" />
             <span className="orbit-dot two" />
             <span className="orbit-dot three" />
-            <div className="center-mark drift">
-              <span>A</span>
+            <div className="center-mark" aria-label="Avantra Consulting LLP">
+              <img 
+                src="/avantra-logo.svg" 
+                alt="Avantra Consulting LLP - solutioning together" 
+                className="h-7 sm:h-8 md:h-9 w-auto max-w-[210px] sm:max-w-[260px] md:max-w-[290px] object-contain"
+              />
             </div>
             <div className="hero-note left">
               <span className="eyebrow">The brief</span>
               <strong>Complex work.<br />Made workable.</strong>
-              <p>One partner across the moments that matter.</p>
+              <p className="text-[12px] font-medium text-[hsl(var(--foreground))] leading-[1.5] mt-1.5">One partner across the moments that matter.</p>
             </div>
             <div className="hero-note right">
               <span className="eyebrow">The standard</span>
               <strong>Ask.<br />We Deliver.</strong>
-              <p>Simple requests. Meaningful results.</p>
+              <p className="text-[12px] font-medium text-[hsl(var(--foreground))] leading-[1.5] mt-1.5">Simple requests. Meaningful results.</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between border-t border-[hsl(var(--foreground)/.14)] px-6 py-3 text-[10px] uppercase tracking-[.13em] text-[hsl(var(--foreground)/.45)] md:px-12">
+      <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between border-t border-[hsl(var(--foreground)/.14)] px-6 py-3 text-[10px] uppercase tracking-[.13em] text-[hsl(var(--foreground)/.85)] font-medium md:px-12">
         <span>01 / 05</span>
         <span className="hidden md:inline">Paralegal · Finance · Technology · Staffing</span>
         <a href="/#practices" className="flex items-center gap-2" data-testid="link-scroll-practices">

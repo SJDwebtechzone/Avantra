@@ -13,11 +13,15 @@ import { NewsPage } from './pages/NewsPage';
 import { UpdatesPage } from './pages/UpdatesPage';
 import { GetStartedPage } from './pages/GetStartedPage';
 import { CaseStudiesPage } from './pages/CaseStudiesPage';
+import { LoginPage } from './pages/LoginPage';
 
 export const App: React.FC = () => {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
+      <Route path="/dashboard" component={LoginPage} />
+      <Route path="/portal" component={LoginPage} />
+      <Route path="/login" component={LoginPage} />
       <Route path="/services" component={ServicesIndexPage} />
       <Route path="/services/:slug" component={ServiceDetailPage} />
       <Route path="/story" component={StoryPage} />

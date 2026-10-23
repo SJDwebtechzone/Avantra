@@ -15,7 +15,7 @@ export const WhatWeDoSection: React.FC = () => {
             </h2>
           </div>
           <div>
-            <p className="max-w-[520px] text-[18px] leading-[1.5] text-[hsl(var(--foreground)/.68)]">
+            <p className="max-w-[520px] text-[18px] leading-[1.5] text-[hsl(var(--foreground)/.92)] font-normal">
               The strongest support does not sit in a silo. It understands the matter, the money, the systems and the people carrying the work. Avantra brings those perspectives into one practical partnership.
             </p>
             <div className="mt-12 grid gap-8 md:grid-cols-2">
@@ -24,7 +24,7 @@ export const WhatWeDoSection: React.FC = () => {
                   <span className="practice-number">{a.number}</span>
                   <h3>{a.title}</h3>
                   <p>{a.copy}</p>
-                  <ul className="mt-5 space-y-2 text-[11px] text-[hsl(var(--foreground)/.54)]">
+                  <ul className="mt-5 space-y-2 text-[11px] text-[hsl(var(--foreground)/.82)]">
                     {a.details.map((i) => (
                       <li key={i} className="flex items-start gap-2">
                         <span className="mt-1 h-1 w-1 shrink-0 bg-[hsl(var(--accent))]" />

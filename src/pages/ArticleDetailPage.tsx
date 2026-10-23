@@ -1,5 +1,6 @@
 import React from 'react';
 import { useRoute } from 'wouter';
+import { SEO } from '../components/SEO';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { LpoInfographic } from '../components/LpoInfographic';
@@ -23,6 +24,11 @@ export const ArticleDetailPage: React.FC = () => {
   if (isArticleFive) {
     return (
       <main className="site-shell bg-[hsl(var(--background))]">
+        <SEO 
+          title={`${article.title} | Avantra Insights`} 
+          description={article.excerpt || article.title} 
+          canonical={`https://avantraconsulting.com/articles/${article.slug}`} 
+        />
         <Navbar />
 
         {/* Article Hero */}
@@ -36,7 +42,7 @@ export const ArticleDetailPage: React.FC = () => {
               <span className="text-[11px] uppercase tracking-[0.14em] font-mono font-medium text-[hsl(var(--accent))] bg-[hsl(var(--accent)/.1)] px-3 py-1 rounded-full">
                 Technology
               </span>
-              <span className="flex items-center gap-1 text-[12px] text-[hsl(var(--foreground)/.5)]">
+              <span className="flex items-center gap-1 text-[12px] text-[hsl(var(--foreground)/.75)]">
                 <Clock size={13} /> 5 min read
               </span>
             </div>
@@ -45,7 +51,7 @@ export const ArticleDetailPage: React.FC = () => {
               Keeping Client Data Safe When You Outsource
             </h1>
 
-            <p className="mt-6 text-[18px] md:text-[20px] leading-[1.6] text-[hsl(var(--foreground)/.72)] max-w-[850px] font-light">
+            <p className="mt-6 text-[18px] md:text-[20px] leading-[1.6] text-[hsl(var(--foreground)/.92)] max-w-[850px] font-normal">
               The data security safeguards to ask any outsourcing provider about, from access control and devices to confidentiality agreements and audit trails.
             </p>
           </div>
@@ -61,7 +67,7 @@ export const ArticleDetailPage: React.FC = () => {
         {/* Article Body Content */}
         <section className="py-16 md:py-24">
           <div className="container-wide max-w-[900px]">
-            <div className="prose prose-lg max-w-none text-[17px] md:text-[18px] leading-[1.75] text-[hsl(var(--foreground)/.8)] space-y-8">
+            <div className="prose prose-lg max-w-none text-[17px] md:text-[18px] leading-[1.75] text-[hsl(var(--foreground)/.92)] space-y-8">
               
               <p className="text-[20px] leading-[1.6] text-[hsl(var(--foreground))] font-normal">
                 For law firms, accountants and any business holding customer information, the first question about outsourcing is usually, "Is our data safe?" It should be. Confidentiality obligations don't transfer to your provider; they stay with you. So the right partner is one who makes it easy to show that the data is protected.
@@ -181,6 +187,11 @@ export const ArticleDetailPage: React.FC = () => {
   if (isArticleFour) {
     return (
       <main className="site-shell bg-[hsl(var(--background))]">
+        <SEO 
+          title={`${article.title} | Avantra Insights`} 
+          description={article.excerpt || article.title} 
+          canonical={`https://avantraconsulting.com/articles/${article.slug}`} 
+        />
         <Navbar />
 
         {/* Article Hero */}
@@ -194,7 +205,7 @@ export const ArticleDetailPage: React.FC = () => {
               <span className="text-[11px] uppercase tracking-[0.14em] font-mono font-medium text-[hsl(var(--accent))] bg-[hsl(var(--accent)/.1)] px-3 py-1 rounded-full">
                 Working With Us
               </span>
-              <span className="flex items-center gap-1 text-[12px] text-[hsl(var(--foreground)/.5)]">
+              <span className="flex items-center gap-1 text-[12px] text-[hsl(var(--foreground)/.75)]">
                 <Clock size={13} /> 4 min read
               </span>
             </div>
@@ -203,7 +214,7 @@ export const ArticleDetailPage: React.FC = () => {
               How We Onboard a New Client: Our Five-Step Process
             </h1>
 
-            <p className="mt-6 text-[18px] md:text-[20px] leading-[1.6] text-[hsl(var(--foreground)/.72)] max-w-[850px] font-light">
+            <p className="mt-6 text-[18px] md:text-[20px] leading-[1.6] text-[hsl(var(--foreground)/.92)] max-w-[850px] font-normal">
               From client questionnaire to ongoing optimization, see Avantra Consulting's five-step onboarding process and what to expect at each stage.
             </p>
           </div>
@@ -219,7 +230,7 @@ export const ArticleDetailPage: React.FC = () => {
         {/* Article Body Content */}
         <section className="py-16 md:py-24">
           <div className="container-wide max-w-[900px]">
-            <div className="prose prose-lg max-w-none text-[17px] md:text-[18px] leading-[1.75] text-[hsl(var(--foreground)/.8)] space-y-8">
+            <div className="prose prose-lg max-w-none text-[17px] md:text-[18px] leading-[1.75] text-[hsl(var(--foreground)/.92)] space-y-8">
               
               <p className="text-[20px] leading-[1.6] text-[hsl(var(--foreground))] font-normal">
                 Starting with a new partner is easier when you know what happens next. Whether you're outsourcing legal support, building a remote team or handing over your bookkeeping, every Avantra engagement follows the same five steps.
@@ -295,6 +306,11 @@ export const ArticleDetailPage: React.FC = () => {
   if (isArticleThree) {
     return (
       <main className="site-shell bg-[hsl(var(--background))]">
+        <SEO 
+          title={`${article.title} | Avantra Insights`} 
+          description={article.excerpt || article.title} 
+          canonical={`https://avantraconsulting.com/articles/${article.slug}`} 
+        />
         <Navbar />
 
         {/* Article Hero */}
@@ -308,7 +324,7 @@ export const ArticleDetailPage: React.FC = () => {
               <span className="text-[11px] uppercase tracking-[0.14em] font-mono font-medium text-[hsl(var(--accent))] bg-[hsl(var(--accent)/.1)] px-3 py-1 rounded-full">
                 Finance &amp; Bookkeeping
               </span>
-              <span className="flex items-center gap-1 text-[12px] text-[hsl(var(--foreground)/.5)]">
+              <span className="flex items-center gap-1 text-[12px] text-[hsl(var(--foreground)/.75)]">
                 <Clock size={13} /> 5 min read
               </span>
             </div>
@@ -317,7 +333,7 @@ export const ArticleDetailPage: React.FC = () => {
               Closing Your Books in Five Days: A Monthly Routine That Works
             </h1>
 
-            <p className="mt-6 text-[18px] md:text-[20px] leading-[1.6] text-[hsl(var(--foreground)/.72)] max-w-[850px] font-light">
+            <p className="mt-6 text-[18px] md:text-[20px] leading-[1.6] text-[hsl(var(--foreground)/.92)] max-w-[850px] font-normal">
               A practical five-day month-end close routine for small and mid-sized businesses: reconciliations, reviews and reports, without the scramble.
             </p>
           </div>
@@ -333,7 +349,7 @@ export const ArticleDetailPage: React.FC = () => {
         {/* Article Body Content */}
         <section className="py-16 md:py-24">
           <div className="container-wide max-w-[900px]">
-            <div className="prose prose-lg max-w-none text-[17px] md:text-[18px] leading-[1.75] text-[hsl(var(--foreground)/.8)] space-y-8">
+            <div className="prose prose-lg max-w-none text-[17px] md:text-[18px] leading-[1.75] text-[hsl(var(--foreground)/.92)] space-y-8">
               
               <p className="text-[20px] leading-[1.6] text-[hsl(var(--foreground))] font-normal">
                 If your books for September are finished in late October, every decision you make in between is based on old numbers. A faster, predictable month-end close gives owners and managers information while it can still change the outcome. Here's a five-day routine that works for most small and mid-sized businesses.
@@ -438,6 +454,11 @@ export const ArticleDetailPage: React.FC = () => {
   if (isArticleTwo) {
     return (
       <main className="site-shell bg-[hsl(var(--background))]">
+        <SEO 
+          title={`${article.title} | Avantra Insights`} 
+          description={article.excerpt || article.title} 
+          canonical={`https://avantraconsulting.com/articles/${article.slug}`} 
+        />
         <Navbar />
 
         {/* Article Hero */}
@@ -451,7 +472,7 @@ export const ArticleDetailPage: React.FC = () => {
               <span className="text-[11px] uppercase tracking-[0.14em] font-mono font-medium text-[hsl(var(--accent))] bg-[hsl(var(--accent)/.1)] px-3 py-1 rounded-full">
                 Remote Staffing
               </span>
-              <span className="flex items-center gap-1 text-[12px] text-[hsl(var(--foreground)/.5)]">
+              <span className="flex items-center gap-1 text-[12px] text-[hsl(var(--foreground)/.75)]">
                 <Clock size={13} /> 5 min read
               </span>
             </div>
@@ -460,7 +481,7 @@ export const ArticleDetailPage: React.FC = () => {
               Remote Staff, Freelancers or an Agency? Choosing the Right Model
             </h1>
 
-            <p className="mt-6 text-[18px] md:text-[20px] leading-[1.6] text-[hsl(var(--foreground)/.72)] max-w-[850px] font-light">
+            <p className="mt-6 text-[18px] md:text-[20px] leading-[1.6] text-[hsl(var(--foreground)/.92)] max-w-[850px] font-normal">
               Compare dedicated remote staff, freelancers and agencies on cost, control, continuity and risk to choose the right model for your business.
             </p>
           </div>
@@ -476,7 +497,7 @@ export const ArticleDetailPage: React.FC = () => {
         {/* Article Body Content */}
         <section className="py-16 md:py-24">
           <div className="container-wide max-w-[900px]">
-            <div className="prose prose-lg max-w-none text-[17px] md:text-[18px] leading-[1.75] text-[hsl(var(--foreground)/.8)] space-y-8">
+            <div className="prose prose-lg max-w-none text-[17px] md:text-[18px] leading-[1.75] text-[hsl(var(--foreground)/.92)] space-y-8">
               
               <p className="text-[20px] leading-[1.6] text-[hsl(var(--foreground))] font-normal">
                 When a business needs more hands, there are three common ways to get them without hiring locally: freelancers, an agency or outsourced vendor, or dedicated remote staff. Each solves a different problem. Picking the wrong one is how companies end up overpaying, losing knowledge, or managing a revolving door.
@@ -498,7 +519,7 @@ export const ArticleDetailPage: React.FC = () => {
                         <th className="py-3.5 px-4 font-semibold border-b">Dedicated remote staff</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[hsl(var(--foreground)/.1)] text-[hsl(var(--foreground)/.8)]">
+                    <tbody className="divide-y divide-[hsl(var(--foreground)/.1)] text-[hsl(var(--foreground)/.92)]">
                       <tr className="hover:bg-[hsl(var(--foreground)/.02)]">
                         <td className="py-4 px-4 font-semibold bg-[hsl(var(--muted))] border-r border-[hsl(var(--foreground)/.1)]">Best for</td>
                         <td className="py-4 px-4 border-r border-[hsl(var(--foreground)/.1)]">One-off or specialist tasks</td>
@@ -572,7 +593,7 @@ export const ArticleDetailPage: React.FC = () => {
                     <span><strong>Performance tracking</strong> against agreed goals.</span>
                   </li>
                 </ul>
-                <p className="mt-6 italic text-[hsl(var(--foreground)/.75)]">
+                <p className="mt-6 italic text-[hsl(var(--foreground)/.9)] font-normal">
                   At Avantra, our Virtual Staffing Solutions include training and payroll management as standard, so your remote team members are productive quickly and stay that way.
                 </p>
               </div>
@@ -611,6 +632,11 @@ export const ArticleDetailPage: React.FC = () => {
   {/* Article 1 Default View */}
   return (
     <main className="site-shell bg-[hsl(var(--background))]">
+      <SEO 
+        title={`${article.title} | Avantra Insights`} 
+        description={article.excerpt || article.title} 
+        canonical={`https://avantraconsulting.com/articles/${article.slug}`} 
+      />
       <Navbar />
 
       {/* Article Hero */}
@@ -624,7 +650,7 @@ export const ArticleDetailPage: React.FC = () => {
             <span className="text-[11px] uppercase tracking-[0.14em] font-mono font-medium text-[hsl(var(--accent))] bg-[hsl(var(--accent)/.1)] px-3 py-1 rounded-full">
               {article.category}
             </span>
-            <span className="flex items-center gap-1 text-[12px] text-[hsl(var(--foreground)/.5)]">
+            <span className="flex items-center gap-1 text-[12px] text-[hsl(var(--foreground)/.75)]">
               <Clock size={13} /> {article.readTime} read
             </span>
           </div>
@@ -633,7 +659,7 @@ export const ArticleDetailPage: React.FC = () => {
             {article.title}
           </h1>
 
-          <p className="mt-6 text-[18px] md:text-[20px] leading-[1.6] text-[hsl(var(--foreground)/.72)] max-w-[850px] font-light">
+          <p className="mt-6 text-[18px] md:text-[20px] leading-[1.6] text-[hsl(var(--foreground)/.92)] max-w-[850px] font-normal">
             Legal process outsourcing gives attorneys back the hours lost to drafting, tracking and filing. Learn what LPO covers, what stays in-house, and how to start.
           </p>
         </div>
@@ -649,7 +675,7 @@ export const ArticleDetailPage: React.FC = () => {
       {/* Article Body Content */}
       <section className="py-16 md:py-24">
         <div className="container-wide max-w-[900px]">
-          <div className="prose prose-lg max-w-none text-[17px] md:text-[18px] leading-[1.75] text-[hsl(var(--foreground)/.8)] space-y-8">
+          <div className="prose prose-lg max-w-none text-[17px] md:text-[18px] leading-[1.75] text-[hsl(var(--foreground)/.92)] space-y-8">
             
             <p className="text-[20px] leading-[1.6] text-[hsl(var(--foreground))] font-normal">
               Most law firms don't have a legal problem. They have a capacity problem. Attorneys and in-house paralegals spend a large share of their week on work that is necessary but repetitive: drafting standard notices, updating case management systems, chasing documents and preparing files for review. Legal process outsourcing (LPO) moves that work to a trained, supervised team so your people can focus on the work only they can do.

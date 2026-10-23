@@ -46,12 +46,12 @@ export const DataSecurityInfographic: React.FC = () => {
       className="relative overflow-hidden rounded-3xl border border-[#E5DFD5] bg-[#F7F3EA] p-6 sm:p-10 md:p-12 shadow-sm"
       data-testid="data-security-infographic"
     >
-      {/* Top right soft peach curve background shape */}
-      <div className="absolute top-0 right-0 w-64 h-64 sm:w-80 sm:h-80 bg-[#F3D7CD]/70 rounded-bl-full pointer-events-none -mr-8 -mt-8" />
+      {/* Top right soft ice blue curve background shape */}
+      <div className="absolute top-0 right-0 w-64 h-64 sm:w-80 sm:h-80 bg-[#CEE7EA]/70 rounded-bl-full pointer-events-none -mr-8 -mt-8" />
 
       {/* Header */}
       <div className="relative z-10">
-        <span className="text-[12px] uppercase tracking-[0.2em] font-semibold text-[#E06D53]">
+        <span className="text-[12px] uppercase tracking-[0.2em] font-semibold text-[#198afa]">
           TECHNOLOGY · DATA SECURITY
         </span>
         <h3 className="mt-2 text-2xl sm:text-3xl md:text-[38px] font-bold leading-tight tracking-tight text-[#1E3A5F]">

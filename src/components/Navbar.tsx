@@ -2,19 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { ChevronDown, Menu, X } from 'lucide-react';
 import { Hp } from '../data/servicesData';
 
-export const Logo: React.FC<{ light?: boolean }> = ({ light = false }) => {
+export const Logo: React.FC<{ light?: boolean; className?: string }> = ({ light = false, className = '' }) => {
   return (
     <a 
       href="/#top" 
       data-testid="link-logo" 
-      className={`flex items-center gap-3 ${light ? 'text-[hsl(var(--primary-foreground))]' : 'text-[hsl(var(--foreground))]'}`} 
-      aria-label="Avantra Consulting home"
+      className={`inline-flex items-center transition-opacity hover:opacity-90 ${className}`} 
+      aria-label="Avantra Consulting LLP - solutioning together"
     >
-      <span className="relative flex h-8 w-8 items-center justify-center border border-current">
-        <span className="absolute h-3 w-3 rotate-45 bg-[hsl(var(--accent))]" />
-        <span className="relative font-serif text-lg leading-none">A</span>
-      </span>
-      <span className="text-[13px] font-bold tracking-[0.16em]">AVANTRA</span>
+      <img
+        src={light ? "/avantra-logo-white.svg" : "/avantra-logo.svg"}
+        alt="Avantra Consulting LLP"
+        className="h-8 sm:h-9 md:h-10 w-auto object-contain max-w-[230px] sm:max-w-[320px] md:max-w-none"
+      />
     </a>
   );
 };
