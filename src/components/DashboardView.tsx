@@ -16,7 +16,13 @@ import {
   X, 
   AlertCircle,
   ArrowUpRight,
-  ShieldCheck
+  ShieldCheck,
+  KeyRound,
+  Lock,
+  Eye,
+  EyeOff,
+  User,
+  Mail
 } from 'lucide-react';
 
 interface UserData {
@@ -33,7 +39,7 @@ interface DashboardViewProps {
   onLogout: () => void;
 }
 
-type TabKey = 'pricing' | 'articles' | 'updates' | 'case_studies' | 'news';
+type TabKey = 'pricing' | 'articles' | 'updates' | 'case_studies' | 'news' | 'settings';
 
 // Interfaces for the 5 dynamic sections
 export interface PricingPlan {
@@ -166,6 +172,90 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user: _user, onLog
     content: ''
   });
 
+
+  // Settings Form State
+  const [settingsUsername, setSettingsUsername] = useState('admin');
+  const [settingsEmail, setSettingsEmail] = useState('ramyiezhil.1010@gmail.com');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPass, setShowCurrentPass] = useState(false);
+  const [showNewPass, setShowNewPass] = useState(false);
+  const [showConfirmPass, setShowConfirmPass] = useState(false);
+  const [settingsLoading, setSettingsLoading] = useState(false);
+  const [settingsSuccess, setSettingsSuccess] = useState('');
+  const [settingsError, setSettingsError] = useState('');
+  const [lastUpdated, setLastUpdated] = useState('');
+
+  const fetchCredentials = async () => {
+    try {
+      const res = await fetch('/api/admin/credentials');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success) {
+          setSettingsUsername(json.username);
+          setSettingsEmail(json.email);
+          if (json.updatedAt) setLastUpdated(new Date(json.updatedAt).toLocaleString());
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching admin credentials:', err);
+    }
+  };
+
+  const handleUpdateCredentials = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSettingsError('');
+    setSettingsSuccess('');
+
+    if (!currentPassword) {
+      setSettingsError('Please enter your current password to authorize this update.');
+      return;
+    }
+
+    if (newPassword && newPassword.length < 6) {
+      setSettingsError('New password must be at least 6 characters long.');
+      return;
+    }
+
+    if (newPassword && newPassword !== confirmPassword) {
+      setSettingsError('New password and confirmation password do not match.');
+      return;
+    }
+
+    setSettingsLoading(true);
+
+    try {
+      const response = await fetch('/api/admin/credentials', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentPassword,
+          newUsername: settingsUsername,
+          newPassword: newPassword || undefined,
+          newEmail: settingsEmail
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setSettingsSuccess(data.message || 'Credentials updated successfully in PostgreSQL!');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setLastUpdated(new Date().toLocaleString());
+        showToast('Admin credentials updated successfully');
+      } else {
+        setSettingsError(data.error || 'Failed to update credentials.');
+      }
+    } catch (err: any) {
+      setSettingsError('Network error connecting to backend: ' + err.message);
+    } finally {
+      setSettingsLoading(false);
+    }
+  };
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
@@ -213,6 +303,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user: _user, onLog
 
   useEffect(() => {
     fetchAllData();
+    fetchCredentials();
   }, []);
 
   // Open Create Modal
@@ -512,6 +603,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user: _user, onLog
                 <span>Refresh</span>
               </button>
 
+              {activeTab !== 'settings' && (
               <button
                 onClick={handleOpenCreate}
                 className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#02060c] hover:bg-slate-800 px-4 py-2 rounded-lg transition-colors shadow-sm"
@@ -521,6 +613,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user: _user, onLog
                   Add {activeTab === 'pricing' ? 'Pricing Plan' : activeTab === 'articles' ? 'Article' : activeTab === 'updates' ? 'Update' : activeTab === 'case_studies' ? 'Case Study' : 'News'}
                 </span>
               </button>
+              )}
             </div>
           </div>
 
@@ -610,10 +703,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user: _user, onLog
                 {newsList.length}
               </span>
             </button>
+
+            <button
+              onClick={() => { setActiveTab('settings'); setSearchTerm(''); fetchCredentials(); }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                activeTab === 'settings'
+                  ? 'bg-[#02060c] text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+              }`}
+            >
+              <KeyRound size={15} />
+              <span>6. Admin Security</span>
+            </button>
+
           </div>
         </div>
 
         {/* Search Bar for Current Section */}
+        {activeTab !== 'settings' && (
         <div className="flex items-center justify-between gap-4">
           <div className="relative flex-1 max-w-md">
             <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -640,6 +747,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user: _user, onLog
             <ArrowUpRight size={13} />
           </a>
         </div>
+        )}
 
         {/* SECTION 1: PRICING PLANS */}
         {activeTab === 'pricing' && (
@@ -1120,6 +1228,204 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user: _user, onLog
               ))}
           </div>
         )}
+
+        {/* SECTION 6: ADMIN SECURITY & CREDENTIALS */}
+        {activeTab === 'settings' && (
+          <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
+              <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-5 mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-slate-100 text-[#02060c] rounded-xl">
+                    <KeyRound size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900">Admin Account &amp; Credentials</h3>
+                    <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                      Change your administrator login username and password. Changes update PostgreSQL instantly.
+                    </p>
+                  </div>
+                </div>
+                {lastUpdated && (
+                  <span className="hidden sm:inline-block text-[11px] font-mono text-slate-400 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100">
+                    Updated: {lastUpdated}
+                  </span>
+                )}
+              </div>
+
+              {settingsSuccess && (
+                <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center gap-3 animate-fade-in">
+                  <Check size={18} className="text-emerald-600 shrink-0" />
+                  <span className="font-medium">{settingsSuccess}</span>
+                </div>
+              )}
+
+              {settingsError && (
+                <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-center gap-3 animate-fade-in">
+                  <AlertCircle size={18} className="text-rose-600 shrink-0" />
+                  <span className="font-medium">{settingsError}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleUpdateCredentials} className="space-y-6">
+                {/* Section 1: Username & Email */}
+                <div>
+                  <h4 className="text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold mb-3">
+                    1. Account Identity
+                  </h4>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Username <span className="text-rose-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input
+                          type="text"
+                          required
+                          value={settingsUsername}
+                          onChange={(e) => setSettingsUsername(e.target.value)}
+                          placeholder="e.g. admin"
+                          className="w-full pl-9 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#02060c]/20 focus:border-[#02060c] text-slate-800 font-medium"
+                        />
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1">This is what you enter to sign into the dashboard.</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Recovery Email Address
+                      </label>
+                      <div className="relative">
+                        <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input
+                          type="email"
+                          value={settingsEmail}
+                          onChange={(e) => setSettingsEmail(e.target.value)}
+                          placeholder="ramyiezhil.1010@gmail.com"
+                          className="w-full pl-9 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#02060c]/20 focus:border-[#02060c] text-slate-800 font-medium"
+                        />
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1">Used for password recovery links &amp; client notifications.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 2: Current Password Authorization */}
+                <div className="pt-2 border-t border-slate-100">
+                  <h4 className="text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold mb-3">
+                    2. Security Authorization
+                  </h4>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                      Current Password <span className="text-rose-500">*</span>
+                    </label>
+                    <div className="relative max-w-md">
+                      <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type={showCurrentPass ? 'text' : 'password'}
+                        required
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        placeholder="Enter current password to authorize changes"
+                        className="w-full pl-9 pr-10 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#02060c]/20 focus:border-[#02060c] text-slate-800"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCurrentPass(!showCurrentPass)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      >
+                        {showCurrentPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-1">Required to confirm you own this account.</p>
+                  </div>
+                </div>
+
+                {/* Section 3: New Password */}
+                <div className="pt-2 border-t border-slate-100">
+                  <h4 className="text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold mb-1">
+                    3. Set New Password (Optional)
+                  </h4>
+                  <p className="text-xs text-slate-500 mb-3">Leave these fields empty if you only want to change your username or email.</p>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        New Password
+                      </label>
+                      <div className="relative">
+                        <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input
+                          type={showNewPass ? 'text' : 'password'}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="At least 6 characters"
+                          className="w-full pl-9 pr-10 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#02060c]/20 focus:border-[#02060c] text-slate-800"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPass(!showNewPass)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        >
+                          {showNewPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Confirm New Password
+                      </label>
+                      <div className="relative">
+                        <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input
+                          type={showConfirmPass ? 'text' : 'password'}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="Re-enter new password"
+                          className="w-full pl-9 pr-10 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#02060c]/20 focus:border-[#02060c] text-slate-800"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPass(!showConfirmPass)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        >
+                          {showConfirmPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="text-[12px] text-slate-500 flex items-center gap-2">
+                    <ShieldCheck size={16} className="text-emerald-600 shrink-0" />
+                    <span>Changes take effect immediately. Old credentials are permanently overwritten.</span>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={settingsLoading}
+                    className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-semibold text-sm text-white bg-[#02060c] hover:bg-slate-800 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
+                  >
+                    {settingsLoading ? (
+                      <>
+                        <RefreshCw size={14} className="animate-spin" />
+                        <span>Saving Changes...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Check size={16} />
+                        <span>Update Credentials</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
 
       </main>
 

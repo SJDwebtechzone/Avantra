@@ -304,6 +304,78 @@ app.post('/api/reset-password', async (req, res) => {
   }
 });
 
+// ==========================================
+// Admin Credentials Settings Endpoints
+// ==========================================
+app.get('/api/admin/credentials', async (req, res) => {
+  try {
+    const dbRes = await pool.query('SELECT id, username, email, updated_at FROM admin_auth LIMIT 1');
+    if (dbRes.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Admin account not found.' });
+    }
+    const admin = dbRes.rows[0];
+    res.json({
+      success: true,
+      username: admin.username,
+      email: admin.email,
+      updatedAt: admin.updated_at
+    });
+  } catch (err) {
+    console.error('Error fetching admin credentials:', err);
+    res.status(500).json({ success: false, error: 'Failed to retrieve admin details.' });
+  }
+});
+
+app.put('/api/admin/credentials', async (req, res) => {
+  try {
+    const { currentPassword, newUsername, newPassword, newEmail } = req.body;
+
+    if (!currentPassword) {
+      return res.status(400).json({ success: false, error: 'Current password is required to authorize changes.' });
+    }
+
+    // 1. Verify current credentials against PostgreSQL
+    const dbRes = await pool.query('SELECT * FROM admin_auth LIMIT 1');
+    if (dbRes.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Admin account not found in database.' });
+    }
+
+    const admin = dbRes.rows[0];
+    if (admin.password !== currentPassword.trim()) {
+      return res.status(401).json({ success: false, error: 'Current password is incorrect. Verification failed.' });
+    }
+
+    // 2. Prepare updates
+    const targetUsername = newUsername && newUsername.trim() ? newUsername.trim() : admin.username;
+    const targetPassword = newPassword && newPassword.trim() ? newPassword.trim() : admin.password;
+    const targetEmail = newEmail && newEmail.trim() ? newEmail.trim().toLowerCase() : admin.email;
+
+    if (newPassword && newPassword.trim().length < 6) {
+      return res.status(400).json({ success: false, error: 'New password must be at least 6 characters long.' });
+    }
+
+    // 3. Update PostgreSQL
+    await pool.query(
+      `UPDATE admin_auth 
+       SET username = $1, password = $2, email = $3, reset_token = NULL, reset_token_expiry = NULL, updated_at = NOW() 
+       WHERE id = $4`,
+      [targetUsername, targetPassword, targetEmail, admin.id]
+    );
+
+    console.log(`Admin credentials updated successfully in PostgreSQL: Username=${targetUsername}, Email=${targetEmail}`);
+
+    res.json({
+      success: true,
+      message: 'Credentials updated successfully. Your new username and password are now active in PostgreSQL.',
+      username: targetUsername,
+      email: targetEmail
+    });
+  } catch (err) {
+    console.error('Error updating admin credentials:', err);
+    res.status(500).json({ success: false, error: err.message || 'Failed to update credentials.' });
+  }
+});
+
 // Dashboard Metrics Endpoint
 app.get('/api/dashboard', (req, res) => {
   res.json({
