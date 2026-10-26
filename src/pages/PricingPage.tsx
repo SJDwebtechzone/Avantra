@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SEO } from '../components/SEO';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
-import { Check, ArrowRight, Database, ShieldCheck } from 'lucide-react';
+import { Check, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export interface PricingPlan {
   id: string;
@@ -102,7 +102,6 @@ export const PricingPage: React.FC = () => {
   ];
 
   const [plans, setPlans] = useState<PricingPlan[]>(initialPlans);
-  const [isDynamic, setIsDynamic] = useState<boolean>(false);
 
   useEffect(() => {
     fetch('/api/pricing')
@@ -113,7 +112,6 @@ export const PricingPage: React.FC = () => {
       .then((json) => {
         if (json.success && Array.isArray(json.data) && json.data.length > 0) {
           setPlans(json.data);
-          setIsDynamic(true);
         }
       })
       .catch((err) => {
@@ -150,11 +148,6 @@ export const PricingPage: React.FC = () => {
               <a href="/" className="hover:text-[hsl(var(--accent))] transition-colors">Home</a>
               <span>/</span>
               <span className="mono text-[hsl(var(--accent))] font-semibold">Pricing</span>
-              {isDynamic && (
-                <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.1em] text-emerald-800 bg-emerald-100/80 px-2.5 py-0.5 rounded-full font-medium ml-2">
-                  <Database size={11} /> PostgreSQL Live
-                </span>
-              )}
             </div>
 
             <div className="grid gap-6 lg:grid-cols-[1.15fr_.85fr] items-start">

@@ -391,7 +391,7 @@ async function initializeDatabase() {
     // Seed default admin if not already present
     await client.query(`
       INSERT INTO admin_auth (username, email, password)
-      VALUES ('admin', 'ramyiezhil.1010@gmail.com', 'avantra2026')
+      VALUES ('admin', 'info@avantraconsulting.com', 'avantra2026')
       ON CONFLICT (username) DO NOTHING;
     `);
 

@@ -3,12 +3,11 @@ import { SEO } from '../components/SEO';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { newsData, NewsItem } from '../data/newsData';
-import { Calendar, Tag, ArrowRight, Database } from 'lucide-react';
+import { Calendar, Tag, ArrowRight } from 'lucide-react';
 
 export const NewsPage: React.FC = () => {
   const [news, setNews] = useState<NewsItem[]>(newsData);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [isDynamic, setIsDynamic] = useState<boolean>(false);
 
   useEffect(() => {
     fetch('/api/news')
@@ -19,7 +18,6 @@ export const NewsPage: React.FC = () => {
       .then((json) => {
         if (json.success && Array.isArray(json.data) && json.data.length > 0) {
           setNews(json.data);
-          setIsDynamic(true);
         }
       })
       .catch((err) => {
@@ -49,11 +47,6 @@ export const NewsPage: React.FC = () => {
             <span className="text-[11px] uppercase tracking-[0.14em] font-mono font-medium text-[hsl(var(--accent))] bg-[hsl(var(--accent)/.1)] px-3 py-1 rounded-full">
               Company Announcements
             </span>
-            {isDynamic && (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.1em] text-emerald-800 bg-emerald-100/80 px-2.5 py-0.5 rounded-full font-medium">
-                <Database size={11} /> PostgreSQL Live
-              </span>
-            )}
           </div>
 
           <h1 className="text-[clamp(2.5rem,5vw,4.8rem)] font-normal leading-[1.02] tracking-[-0.02em] text-[hsl(var(--foreground))]">

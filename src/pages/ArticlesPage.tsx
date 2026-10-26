@@ -3,12 +3,11 @@ import { SEO } from '../components/SEO';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { articlesData, ArticleItem } from '../data/articlesData';
-import { Clock, ArrowUpRight, Database } from 'lucide-react';
+import { Clock, ArrowUpRight } from 'lucide-react';
 
 export const ArticlesPage: React.FC = () => {
   const [articles, setArticles] = useState<ArticleItem[]>(articlesData);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [isDynamic, setIsDynamic] = useState<boolean>(false);
 
   useEffect(() => {
     fetch('/api/articles')
@@ -19,7 +18,6 @@ export const ArticlesPage: React.FC = () => {
       .then((json) => {
         if (json.success && Array.isArray(json.data) && json.data.length > 0) {
           setArticles(json.data);
-          setIsDynamic(true);
         }
       })
       .catch((err) => {
@@ -50,11 +48,6 @@ export const ArticlesPage: React.FC = () => {
             <span className="eyebrow text-[11px] uppercase tracking-[0.15em] font-mono text-[hsl(var(--accent))]">
               INSIGHTS &amp; ARTICLES
             </span>
-            {isDynamic && (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.1em] text-emerald-800 bg-emerald-100/80 px-2.5 py-0.5 rounded-full font-medium">
-                <Database size={11} /> PostgreSQL Live
-              </span>
-            )}
           </div>
 
           <h1 className="mt-3 text-[clamp(2.8rem,5.5vw,5.5rem)] font-normal leading-[0.95] tracking-[-0.025em] text-[hsl(var(--foreground))] font-sans">

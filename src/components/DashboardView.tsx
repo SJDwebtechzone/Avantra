@@ -175,7 +175,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user: _user, onLog
 
   // Settings Form State
   const [settingsUsername, setSettingsUsername] = useState('admin');
-  const [settingsEmail, setSettingsEmail] = useState('ramyiezhil.1010@gmail.com');
+  const [settingsEmail, setSettingsEmail] = useState('info@avantraconsulting.com');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -1301,7 +1301,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user: _user, onLog
                           type="email"
                           value={settingsEmail}
                           onChange={(e) => setSettingsEmail(e.target.value)}
-                          placeholder="ramyiezhil.1010@gmail.com"
+                          placeholder="info@avantraconsulting.com"
                           className="w-full pl-9 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#02060c]/20 focus:border-[#02060c] text-slate-800 font-medium"
                         />
                       </div>

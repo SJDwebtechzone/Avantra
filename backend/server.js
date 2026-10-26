@@ -186,7 +186,7 @@ app.post('/api/forgot-password', async (req, res) => {
 
     const resetLink = `http://localhost:3000/login?reset_token=${resetToken}&email=${encodeURIComponent(normalizedEmail)}`;
 
-    const smtpUser = process.env.SMTP_USER || 'ramyiezhil.1010@gmail.com';
+    const smtpUser = process.env.SMTP_USER || 'info@avantraconsulting.com';
     const smtpPass = (process.env.SMTP_PASS || '').replace(/\s/g, '');
 
     if (smtpPass) {
@@ -425,8 +425,8 @@ app.post('/api/enquire', async (req, res) => {
   }
 
   // Target notification email
-  const recipientEmail = 'ramyiezhil.1010@gmail.com';
-  const smtpUser = process.env.SMTP_USER || 'ramyiezhil.1010@gmail.com';
+  const recipientEmail = process.env.NOTIFICATION_EMAIL || 'info@avantraconsulting.com';
+  const smtpUser = process.env.SMTP_USER || 'info@avantraconsulting.com';
   const smtpPass = (process.env.SMTP_PASS || '').replace(/\s/g, '');
 
   let emailSent = false;
