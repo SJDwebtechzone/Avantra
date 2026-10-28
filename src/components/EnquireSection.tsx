@@ -88,8 +88,8 @@ export const EnquireSection: React.FC = () => {
             <a href="tel:+916362328046" className="flex items-center gap-3" data-testid="link-phone">
               <Phone size={15} className="text-[hsl(var(--accent))]" /> +91 636 232 8046
             </a>
-            <a href="mailto:info@avantraconsulting.com" className="flex items-center gap-3" data-testid="link-email">
-              <Mail size={15} className="text-[hsl(var(--accent))]" /> info@avantraconsulting.com
+            <a href="mailto:avantra.consulting@gmail.com" className="flex items-center gap-3" data-testid="link-email">
+              <Mail size={15} className="text-[hsl(var(--accent))]" /> avantra.consulting@gmail.com
             </a>
           </div>
         </div>
