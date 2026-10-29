@@ -42,7 +42,7 @@ export const Footer: React.FC = () => {
 
           <div className="mt-16 flex flex-col gap-3 border-t border-[hsl(var(--primary-foreground)/.15)] pt-5 text-[10px] uppercase tracking-[.12em] text-[hsl(var(--primary-foreground)/.72)] md:flex-row md:items-center md:justify-between">
             <span>
-              &copy; {new Date().getFullYear()} Avantra Consulting
+              &copy; {new Date().getFullYear()} Avantra Consulting LLP
             </span>
             <span>
               Website designed by{' '}
