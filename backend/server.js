@@ -425,7 +425,7 @@ app.post('/api/enquire', async (req, res) => {
   }
 
   // Target notification email
-  const recipientEmail = process.env.NOTIFICATION_EMAIL || 'info@avantraconsulting.com';
+  const recipientEmail = process.env.NOTIFICATION_EMAIL || 'enquiries@avantraconsulting.com';
   const smtpUser = process.env.SMTP_USER || 'info@avantraconsulting.com';
   const smtpPass = (process.env.SMTP_PASS || '').replace(/\s/g, '');
 
