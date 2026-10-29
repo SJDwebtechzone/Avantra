@@ -488,15 +488,15 @@ export const PricingPage: React.FC = () => {
           <div className="container-wide">
             <div className="grid gap-10 lg:grid-cols-2">
               
-              {/* Why We Use Custom Pricing */}
+              {/* How Our Pricing Works */}
               <div className="rounded-2xl border border-[hsl(var(--foreground)/.14)] bg-[hsl(var(--card))] p-6 md:p-8 flex flex-col justify-between">
                 <div>
                   <span className="eyebrow">TRANSPARENT VALUE</span>
                   <h3 className="text-xl md:text-2xl font-light mt-2 mb-4 text-[hsl(var(--foreground))]">
-                    Why we use custom pricing — <span className="serif italic text-[hsl(var(--secondary))]">Pricing Built Around Your Needs</span>
+                    How our pricing works &mdash; <span className="serif italic text-[hsl(var(--secondary))]">Pricing Built Around Your Needs</span>
                   </h3>
                   <p className="text-[14.5px] leading-[1.65] text-[hsl(var(--foreground)/.75)] mb-4">
-                    Every project is different. Rather than publish a standard price list that may not reflect your actual requirements, we take the time to understand your scope, roles, experience needs, location, timelines, and level of support.
+                    The ranges above show what most clients pay for each role. Your final fee depends on the role, experience level, working hours and scope, and we confirm it in writing before work starts, with no hidden fees.
                   </p>
                   <blockquote className="rounded-xl border-l-4 border-l-[hsl(var(--accent))] bg-[hsl(var(--muted)/.4)] p-4 text-xs md:text-sm italic text-[hsl(var(--foreground)/.85)] leading-relaxed mb-6">
                     “We then provide a custom quote tailored to your engagement — giving you clarity on cost and ensuring you pay for the services you actually need.”
