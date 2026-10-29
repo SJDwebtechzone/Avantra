@@ -6,7 +6,6 @@ interface SEOProps {
   canonical?: string;
   keywords?: string;
   type?: string;
-  image?: string;
 }
 
 export const SEO: React.FC<SEOProps> = ({
@@ -15,7 +14,6 @@ export const SEO: React.FC<SEOProps> = ({
   canonical,
   keywords = 'legal process outsourcing, remote staffing, dedicated virtual assistant, bookkeeping outsourcing, IT enabled services, LPO services, remote team building, operations coordinator, legal drafting, paralegal support, Avantra Consulting',
   type = 'website',
-  image = 'https://avantraconsulting.com/hero_banner.jpg',
 }) => {
   useEffect(() => {
     // 1. Update Title
@@ -34,23 +32,32 @@ export const SEO: React.FC<SEOProps> = ({
       element.setAttribute(attr, value);
     };
 
-    // 2. Standard Meta Tags
+    // Helper to safely remove unwanted preview tags
+    const removeMetaTag = (selector: string) => {
+      const element = document.querySelector(selector);
+      if (element) {
+        element.remove();
+      }
+    };
+
+    // 2. Standard Search Engine SEO (Google, Bing, etc.)
     setMetaTag('meta[name="description"]', 'content', description);
     setMetaTag('meta[name="keywords"]', 'content', keywords);
 
-    // 3. Open Graph Tags
+    // 3. Open Graph Tags (Clean text-only preview, no image)
     setMetaTag('meta[property="og:title"]', 'content', formattedTitle);
     setMetaTag('meta[property="og:description"]', 'content', description);
     setMetaTag('meta[property="og:type"]', 'content', type);
-    setMetaTag('meta[property="og:image"]', 'content', image);
     if (canonical) {
       setMetaTag('meta[property="og:url"]', 'content', canonical);
     }
+    removeMetaTag('meta[property="og:image"]');
 
-    // 4. Twitter Card Tags
+    // 4. Twitter Card Tags (Summary text, no image)
+    setMetaTag('meta[name="twitter:card"]', 'content', 'summary');
     setMetaTag('meta[name="twitter:title"]', 'content', formattedTitle);
     setMetaTag('meta[name="twitter:description"]', 'content', description);
-    setMetaTag('meta[name="twitter:image"]', 'content', image);
+    removeMetaTag('meta[name="twitter:image"]');
 
     // 5. Canonical Link
     if (canonical) {
@@ -62,7 +69,7 @@ export const SEO: React.FC<SEOProps> = ({
       }
       linkCanonical.setAttribute('href', canonical);
     }
-  }, [title, description, canonical, keywords, type, image]);
+  }, [title, description, canonical, keywords, type]);
 
   return null;
 };
